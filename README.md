@@ -2,17 +2,18 @@
 
 ## Descrição do Projeto
 
-Desenvolvimento de um sistema acadêmico para gerenciar alunos, disciplinas, professores, turmas, avaliações e frequência, utilizando os conceitos de orientação a objetos (herança, polimorfismo e encapsulamento) e persistência de dados em arquivos.
+Este projeto teve início como um desafio acadêmico na disciplina de PDS (Projeto Detalhado de Software) na UFC-Campus-Russas. A ideia principal não se baseia em criar algo do zero, mas sim pegar um sistema "legado" (desenvolvido originalmente pelo Pedro Arthur da UnB) e elevar o nível técnico dele através de uma reengenharia completa.
 
-O enunciado do trabalho pode ser encontrado aqui:
-- [Trabalho 1 - Sistema Acadêmico](https://github.com/lboaventura25/OO-T06_2025.1_UnB_FCTE/blob/main/trabalhos/ep1/README.md)
+## Equipe (Scrum - UFC Russas)
+**Product Owner (PO):** Paulo João 
+**Scrum Master (SM):** John Miguel 
+**Developers:** Enzo Andrade, Paulo João , John Miguel e Lucas de Souza 
 
-## Dados do Aluno
-
-- **Nome completo:** Pedro Arthur Rodrigues Almeida
-- **Matrícula:** 241012365
-- **Curso:** Orientação a Objetos
-- **Turma:** 06
+## Objetivos de Reengenharia (Backlog)
+Estes são os objetivos definidos para a evolução do sistema:
+**Persistência Profissional:** Migração de arquivos '.txt' para Banco de Dados Relacional.
+**Nova Arquitetura:** Implementação dos padrões MVC e DAO para isolar as regras de negócio.
+**Segurança de Dados:** Tratamento de entradas para evitar ataques de SQL Injection.
 
 ---
 
@@ -63,5 +64,3 @@ O enunciado do trabalho pode ser encontrado aqui:
 
 ## Contato
 
-- **Email:** parthur.rodrigues06@gmail.com
-- **LinkedIn:** https://www.linkedin.com/in/parthurrod06
