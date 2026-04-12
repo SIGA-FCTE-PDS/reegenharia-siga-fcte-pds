@@ -5,16 +5,16 @@
 Este projeto teve início como um desafio acadêmico na disciplina de PDS (Projeto Detalhado de Software) na UFC-Campus-Russas. A ideia principal não se baseia em criar algo do zero, mas sim pegar um sistema "legado" (desenvolvido originalmente pelo Pedro Arthur da UnB) e elevar o nível técnico dele através de uma reengenharia completa.
 
 ## Equipe (Scrum - UFC Russas)
-**Product Owner (PO):** Paulo João 
-**Scrum Master (SM):** John Miguel 
-**Developers:** Enzo Andrade, Paulo João , John Miguel e Lucas de Souza 
+* **Product Owner (PO):** Paulo João
+* **Scrum Master (SM):** John Miguel
+* **Developers:** Enzo Andrade, Paulo João, John Miguel e Lucas de Souza
 
 ## Objetivos de Reengenharia (Backlog)
 Estes são os objetivos definidos para a evolução do sistema:
-**Persistência Profissional:** Migração de arquivos '.txt' para Banco de Dados Relacional.
-**Nova Arquitetura:** Implementação dos padrões MVC e DAO para isolar as regras de negócio.
-**Segurança de Dados:** Tratamento de entradas para evitar ataques de SQL Injection.
 
+* **Persistência Profissional:** Migração de arquivos '.txt' para Banco de Dados Relacional.
+* **Nova Arquitetura:** Implementação dos padrões MVC e DAO para isolar as regras de negócio.
+* **Segurança de Dados:** Tratamento de entradas para evitar ataques de SQL Injection.
 ---
 
 ## Instruções para Compilação e Execução
