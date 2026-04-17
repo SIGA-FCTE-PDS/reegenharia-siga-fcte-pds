@@ -28,65 +28,64 @@ Estes são os objetivos definidos para a evolução do sistema:
    java -cp bin Main
 
 3.  **Estrutura de Pastas:**  
-    siga-fcte-pds-backend/
-    ├── src/
-    │   └── main/
-    │       ├── java/
-    │       │   └── br/ufc/fcte/siga/
-    │       │       ├── controller/
-    │       │       │   ├── AlunoController.java
-    │       │       │   ├── AvaliacaoController.java
-    │       │       │   ├── DisciplinaController.java
-    │       │       │   └── TurmaController.java
-    │       │       ├── dao/
-    │       │       │   ├── AlunoDAO.java                  (Interface JPA)
-    │       │       │   ├── DisciplinaDAO.java               (Interface JPA)
-    │       │       │   ├── FrequenciaDAO.java               (Interface JPA)
-    │       │       │   ├── MatriculaDAO.java                (Interface JPA)
-    │       │       │   ├── NotaDAO.java                     (Interface JPA)
-    │       │       │   └── TurmaDAO.java                    (Interface JPA)
-    │       │       ├── exception/
-    │       │       │   ├── AlunoNaoEncontradoException.java
-    │       │       │   ├── DatabaseException.java
-    │       │       │   ├── MatriculaDuplicadaException.java
-    │       │       │   ├── TurmaLotadaException.java
-    │       │       │   └── TurmaNaoEncontradaException.java
-    │       │       ├── infra/
-    │       │       │   └── Database.java                  (Configurações extras se necessário)
-    │       │       ├── model/
-    │       │       │   ├── factory/
-    │       │       │   │   └── AlunoFactory.java
-    │       │       │   ├── Aluno.java                     (abstract @Entity)
-    │       │       │   ├── AlunoEspecial.java             (@Entity)
-    │       │       │   ├── AlunoNormal.java               (@Entity)
-    │       │       │   ├── Disciplina.java                (@Entity)
-    │       │       │   ├── Frequencia.java                (@Entity)
-    │       │       │   ├── Matricula.java                 (@Entity)
-    │       │       │   ├── Nota.java                      (@Entity)
-    │       │       │   ├── Professor.java                 (@Entity)
-    │       │       │   └── Turma.java                     (@Entity)
-    │       │       ├── service/
-    │       │       │   ├── relatorio/
-    │       │       │   │   ├── RelatorioPorDisciplina.java
-    │       │       │   │   ├── RelatorioPorProfessor.java
-    │       │       │   │   ├── RelatorioPorTurma.java
-    │       │       │   │   └── RelatorioService.java      (abstract)
-    │       │       │   ├── AlunoService.java              (Interface ou Class)
-    │       │       │   ├── AvaliacaoService.java
-    │       │       │   ├── DisciplinaService.java
-    │       │       │   └── TurmaService.java
-    │       │       ├── view/
-    │       │       │   ├── MenuAluno.java
-    │       │       │   ├── MenuAvaliacao.java
-    │       │       │   ├── MenuDisciplina.java
-    │       │       │   └── MenuPrincipal.java
-    │       │       └── SigaFctePdsBackendApplication.java (Classe Principal)
-    │       └── resources/
-    │           ├── static/
-    │           ├── templates/
-    │           └── application.properties                 (Configuração do PostgreSQL)
-    ├── pom.xml
-    └── .gitignore                                  (class)
+siga-fcte-pds-backend/
+├── src/
+│   ├── main/
+│   │   ├── java/br/ufc/fcte/siga/
+│   │   │   ├── controller/               # Endpoints da API (Lucas)
+│   │   │   │   ├── AlunoController.java
+│   │   │   │   ├── AvaliacaoController.java
+│   │   │   │   ├── DisciplinaController.java
+│   │   │   │   └── TurmaController.java
+│   │   │   ├── dao/                      # Interfaces JPA Repository (Paulo)
+│   │   │   │   ├── AlunoDAO.java
+│   │   │   │   ├── DisciplinaDAO.java
+│   │   │   │   ├── FrequenciaDAO.java
+│   │   │   │   ├── MatriculaDAO.java
+│   │   │   │   ├── NotaDAO.java
+│   │   │   │   └── TurmaDAO.java
+│   │   │   ├── exception/                # Tratamento de Erros e Exceções
+│   │   │   │   ├── AlunoNaoEncontradoException.java
+│   │   │   │   ├── DatabaseException.java
+│   │   │   │   ├── MatriculaDuplicadaException.java
+│   │   │   │   ├── TurmaLotadaException.java
+│   │   │   │   └── TurmaNaoEncontradaException.java
+│   │   │   ├── infra/                    # Configurações de Infraestrutura
+│   │   │   │   └── Database.java
+│   │   │   ├── model/                    # Entidades e Mapeamento JPA (Paulo)
+│   │   │   │   ├── factory/              # Padrão Factory (Criação)
+│   │   │   │   │   └── AlunoFactory.java
+│   │   │   │   ├── Aluno.java            # Abstract @Entity
+│   │   │   │   ├── AlunoEspecial.java    # Subclasse @Entity
+│   │   │   │   ├── AlunoNormal.java      # Subclasse @Entity
+│   │   │   │   ├── Disciplina.java       # @Entity
+│   │   │   │   ├── Frequencia.java       # @Entity
+│   │   │   │   ├── Matricula.java        # @Entity
+│   │   │   │   ├── Nota.java             # @Entity
+│   │   │   │   ├── Professor.java        # @Entity
+│   │   │   │   └── Turma.java            # @Entity
+│   │   │   ├── service/                  # Regras de Negócio (John/Enzo)
+│   │   │   │   ├── relatorio/            # Lógica de Relatórios
+│   │   │   │   │   ├── RelatorioPorDisciplina.java
+│   │   │   │   │   ├── RelatorioPorProfessor.java
+│   │   │   │   │   ├── RelatorioPorTurma.java
+│   │   │   │   │   └── RelatorioService.java
+│   │   │   │   ├── AlunoService.java
+│   │   │   │   ├── AvaliacaoService.java
+│   │   │   │   ├── DisciplinaService.java
+│   │   │   │   └── TurmaService.java
+│   │   │   ├── view/                     # Interface de Usuário (Console)
+│   │   │   │   ├── MenuAluno.java
+│   │   │   │   ├── MenuAvaliacao.java
+│   │   │   │   ├── MenuDisciplina.java
+│   │   │   │   └── MenuPrincipal.java
+│   │   │   └── SigaFctePdsBackendApplication.java
+│   │   └── resources/
+│   │       ├── application.properties    # Configuração do PostgreSQL
+│   │       ├── static/
+│   │       └── templates/
+├── pom.xml                               # Dependências Maven (Spring Boot, JPA, Lombok)
+└── .gitignore                            # Exclusões de arquivos temporários e binários
    
 
 3. **Versão do JAVA utilizada:**  
