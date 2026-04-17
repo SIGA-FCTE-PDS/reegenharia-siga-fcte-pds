@@ -28,6 +28,7 @@ Estes são os objetivos definidos para a evolução do sistema:
    java -cp bin Main
 
 3.  **Estrutura de Pastas:**  
+```text
 siga-fcte-pds-backend/
 ├── src/
 │   ├── main/
