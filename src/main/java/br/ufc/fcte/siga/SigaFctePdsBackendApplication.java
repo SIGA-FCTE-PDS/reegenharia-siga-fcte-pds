@@ -2,6 +2,7 @@ package br.ufc.fcte.siga;
 
 import br.ufc.fcte.siga.dao.AlunoDAO;
 import br.ufc.fcte.siga.model.Aluno;
+import br.ufc.fcte.siga.model.factory.AlunoFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,32 +15,22 @@ public class SigaFctePdsBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(SigaFctePdsBackendApplication.class, args);
     }
-    // tudo a baixo é temporario, foi apenas para testar a persistência
+
     @Bean
     CommandLineRunner teste(AlunoDAO alunoDAO) {
         return args -> {
-            Aluno a1 = new Aluno();
-            a1.setMatricula("571503");
-            a1.setNome("Paulo João - Product Owner");
-            a1.setCurso("Engenharia de Software");
+            // Verifica se o banco já tem dados para não duplicar toda vez que reiniciar
+            if (alunoDAO.count() == 0) {
 
-            Aluno a2 = new Aluno();
-            a2.setMatricula("999888");
-            a2.setNome("John Miguel - Scrum Master");
-            a2.setCurso("Engenharia de Software");
+                // Usando a Factory e preenchendo os campos obrigatórios
+                Aluno a1 = AlunoFactory.criarAluno("NORMAL", "571503", "Paulo João - Product Owner", "000.000.000-01", "Engenharia de Software", null);
+                Aluno a2 = AlunoFactory.criarAluno("NORMAL", "999888", "John Miguel - Scrum Master", "000.000.000-02", "Engenharia de Software", null);
+                Aluno a3 = AlunoFactory.criarAluno("NORMAL", "991235", "Lucas de Souza - Developer", "000.000.000-03", "Engenharia de Software", null);
+                Aluno a4 = AlunoFactory.criarAluno("NORMAL", "999534", "Enzo Andrade - Developer", "000.000.000-04", "Engenharia de Software", null);
 
-            Aluno a3 = new Aluno();
-            a3.setMatricula("991235");
-            a3.setNome("Lucas de Souza - Developer");
-            a3.setCurso("Engenharia de Software");
-
-            Aluno a4 = new Aluno();
-            a4.setMatricula("999534");
-            a4.setNome("Enzo Andrade - Developer");
-            a4.setCurso("Engenharia de Software");
-
-            alunoDAO.saveAll(List.of(a1, a2, a3, a4));
-            System.out.println("✅ Alunos salvos com sucesso no PostgreSQL!");
+                alunoDAO.saveAll(List.of(a1, a2, a3, a4));
+                System.out.println("Equipe inicial salva com sucesso usando a Factory e validações do PostgreSQL!");
+            }
         };
     }
 }
