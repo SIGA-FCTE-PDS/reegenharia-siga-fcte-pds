@@ -18,4 +18,8 @@ public interface AlunoDAO extends JpaRepository<Aluno, String> {
 
     // Busca alunos pelo status (Ex: listar todos os alunos "ATIVOS" ou "TRANCADOS")
     List<Aluno> findByStatus(String status);
+
+    // Conta quantos alunos já existem em um curso específico - usado para gerar
+    // o número sequencial da matrícula (RN definida com o PO)
+    long countByCurso(String curso);
 }
