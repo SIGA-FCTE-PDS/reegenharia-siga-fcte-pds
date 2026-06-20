@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DisiciplinaResponseDTO {
+public class DisciplinaResponseDTO {
     private String codigo;
     private String nome;
     private int cargaHoraria;
