@@ -14,6 +14,9 @@ public interface NotificacaoDAO extends JpaRepository<Notificacao, Long> {
     // Método que pode ser usado para listar as notificações na tela do aluno
     List<Notificacao> findByAluno(Aluno aluno);
 
+    // Busca direta por matrícula, evita ter que buscar o Aluno antes só para filtrar
+    List<Notificacao> findByAlunoMatricula(String matriculaAluno);
+
     // Permite listar todas as notificações geradas em uma turma específica
     List<Notificacao> findByTurma(Turma turma);
 }
