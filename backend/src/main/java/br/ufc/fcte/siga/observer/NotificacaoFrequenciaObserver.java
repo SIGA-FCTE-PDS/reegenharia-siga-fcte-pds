@@ -22,9 +22,21 @@ public class NotificacaoFrequenciaObserver implements FrequenciaObserver {
     }
 
     @Override
-    public void aoExcederLimiteFaltas(Aluno aluno, Turma turma, int totalFaltas) {
+    public void aoAtingirLimiteCritico(Aluno aluno, Turma turma, int totalFaltas) {
         String mensagem = String.format(
-                "Atenção: você atingiu %d faltas na disciplina %s e está reprovado por falta.",
+                "Atenção: você já tem %d faltas na disciplina %s. Mais uma falta e você será reprovado por frequência.",
+                totalFaltas,
+                turma.getDisciplina().getNome()
+        );
+
+        Notificacao notificacao = new Notificacao(aluno, turma, mensagem);
+        notificacaoDAO.save(notificacao);
+    }
+
+    @Override
+    public void aoReprovarPorFalta(Aluno aluno, Turma turma, int totalFaltas) {
+        String mensagem = String.format(
+                "Você atingiu %d faltas na disciplina %s e está reprovado por falta.",
                 totalFaltas,
                 turma.getDisciplina().getNome()
         );

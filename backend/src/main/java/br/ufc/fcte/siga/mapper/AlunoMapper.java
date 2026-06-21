@@ -47,7 +47,6 @@ public class AlunoMapper {
      */
     public static void updateEntityFromDTO(Aluno aluno, br.ufc.fcte.siga.dto.AlunoRequestDTO dto) {
         aluno.setNome(dto.getNome());
-        aluno.setCpf(dto.getCpf());
         aluno.setCurso(dto.getCurso());
         aluno.setEmail(dto.getEmail());
         aluno.setDataNascimento(dto.getDataNascimento());

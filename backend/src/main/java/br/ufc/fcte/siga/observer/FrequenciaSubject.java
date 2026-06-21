@@ -35,11 +35,21 @@ public class FrequenciaSubject {
     }
 
     /**
-     * Notifica todos os observers registrados de que o aluno excedeu o limite de faltas na turma.
+     * Notifica todos os observers de que o aluno atingiu o limite crítico de faltas
+     * (16 faltas) - ainda não reprovado, mas a próxima falta já reprova.
      */
-    public void notificarExcessoFaltas(Aluno aluno, Turma turma, int totalFaltas) {
+    public void notificarLimiteCritico(Aluno aluno, Turma turma, int totalFaltas) {
         for (FrequenciaObserver observer : observers) {
-            observer.aoExcederLimiteFaltas(aluno, turma, totalFaltas);
+            observer.aoAtingirLimiteCritico(aluno, turma, totalFaltas);
+        }
+    }
+
+    /**
+     * Notifica todos os observers de que o aluno foi reprovado por falta (18 faltas).
+     */
+    public void notificarReprovacaoPorFalta(Aluno aluno, Turma turma, int totalFaltas) {
+        for (FrequenciaObserver observer : observers) {
+            observer.aoReprovarPorFalta(aluno, turma, totalFaltas);
         }
     }
 }

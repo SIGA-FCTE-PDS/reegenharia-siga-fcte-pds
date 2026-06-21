@@ -21,10 +21,12 @@ import java.util.stream.Collectors;
 @Service
 public class FrequenciaServiceImpl implements FrequenciaService {
 
-    // Regra definida com o PO: cada registro de falta (presente=false) vale 2 faltas,
-    // e o limite de reprovação é 16 faltas por turma/disciplina.
+    // Regra definida com o PO: cada registro de falta (presente=false) vale 2 faltas.
+    // Com 16 faltas o aluno ainda passa, mas já está no limite crítico (mais 1 falta reprova).
+    // Com 18 faltas o aluno está reprovado por frequência.
     private static final int FALTAS_POR_REGISTRO = 2;
-    private static final int LIMITE_FALTAS = 16;
+    private static final int LIMITE_CRITICO_FALTAS = 16;
+    private static final int LIMITE_REPROVACAO_FALTAS = 18;
 
     private final FrequenciaDAO frequenciaDAO;
     private final AlunoDAO alunoDAO;
@@ -70,12 +72,17 @@ public class FrequenciaServiceImpl implements FrequenciaService {
             int totalFaltasAntes = faltasAntesDoRegistro * FALTAS_POR_REGISTRO;
             int totalFaltasDepois = faltasDepoisDoRegistro * FALTAS_POR_REGISTRO;
 
-            // Dispara o Observer só na transição (cruzou o limite agora), evitando notificar
-            // de novo em toda falta subsequente depois que o aluno já está reprovado
-            boolean cruzouOLimiteAgora = totalFaltasAntes < LIMITE_FALTAS && totalFaltasDepois >= LIMITE_FALTAS;
+            // Dispara cada alerta só na transição exata (cruzou o limite agora), evitando
+            // notificar de novo em toda falta subsequente após o aluno já ter passado do limite
+            boolean cruzouLimiteCriticoAgora =
+                    totalFaltasAntes < LIMITE_CRITICO_FALTAS && totalFaltasDepois >= LIMITE_CRITICO_FALTAS;
+            boolean cruzouLimiteReprovacaoAgora =
+                    totalFaltasAntes < LIMITE_REPROVACAO_FALTAS && totalFaltasDepois >= LIMITE_REPROVACAO_FALTAS;
 
-            if (cruzouOLimiteAgora) {
-                frequenciaSubject.notificarExcessoFaltas(aluno, turma, totalFaltasDepois);
+            if (cruzouLimiteReprovacaoAgora) {
+                frequenciaSubject.notificarReprovacaoPorFalta(aluno, turma, totalFaltasDepois);
+            } else if (cruzouLimiteCriticoAgora) {
+                frequenciaSubject.notificarLimiteCritico(aluno, turma, totalFaltasDepois);
             }
         }
 
