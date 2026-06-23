@@ -14,4 +14,9 @@ public interface DisciplinaDAO extends JpaRepository<Disciplina, String> {
 
     // É importante para filtros na tela, onde vai listar apenas matérias "obrigatoria" ou apenas "optativa"
     List<Disciplina> findByTipo(String tipo);
+
+    // RN (SF-61): impede duplicidade de código de disciplina antes de persistir.
+    // Tecnicamente equivalente a existsById (codigo é o @Id), mas nomeado explicitamente
+    // para deixar a intenção de negócio clara na camada de Service.
+    boolean existsByCodigo(String codigo);
 }
