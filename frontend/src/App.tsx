@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Login from './pages/Login';
+import Login           from './pages/Login';
 import ProfessorDashboard from './pages/ProfessorDashboard';
-import AlunoDashboard from './pages/AlunoDashboard';
-import AlunosPage from './pages/AlunosPage';
-import TurmasPage from './pages/TurmasPage';
-import MatriculasPage from './pages/MatriculasPage';
-import Navbar from './components/Navbar';
+import AlunoDashboard  from './pages/AlunoDashboard';
+import AdminDashboard  from './pages/AdminDashboard';
+import Navbar          from './components/Navbar';
 import './App.css';
 
 type Page = 'dashboard' | 'alunos' | 'turmas' | 'matriculas';
@@ -17,27 +15,31 @@ function AppRouter() {
 
     if (!user) return <Login />;
 
-    const renderPage = () => {
-        // Trava de segurança: Aluno SÓ pode ver o próprio dashboard.
-        if (user.role === 'aluno') {
-            return <AlunoDashboard />;
-        }
+    // PROFESSOR — só vê o painel de notas/frequência, sem acesso ao CRUD
+    if (user.role === 'professor') {
+        return (
+            <div className="app-layout">
+                <Navbar current={page} onChange={setPage} />
+                <main className="app-content"><ProfessorDashboard /></main>
+            </div>
+        );
+    }
 
-        // Se for professor, ele tem acesso livre para navegar nas telas:
-        switch (page) {
-            case 'alunos':     return <AlunosPage />;
-            case 'turmas':     return <TurmasPage />;
-            case 'matriculas': return <MatriculasPage />;
-            default:           return <ProfessorDashboard />;
-        }
-    };
+    // ALUNO — só vê o painel com suas turmas, notas, frequência e notificações
+    if (user.role === 'aluno') {
+        return (
+            <div className="app-layout">
+                <Navbar current={page} onChange={setPage} />
+                <main className="app-content"><AlunoDashboard /></main>
+            </div>
+        );
+    }
 
+    // ADMIN — acesso ao CRUD completo: alunos, turmas e matrículas
     return (
         <div className="app-layout">
             <Navbar current={page} onChange={setPage} />
-            <main className="app-content">
-                {renderPage()}
-            </main>
+            <main className="app-content"><AdminDashboard /></main>
         </div>
     );
 }

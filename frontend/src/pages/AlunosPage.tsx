@@ -34,10 +34,18 @@ export default function AlunosPage() {
         finally { setLoading(false); }
     }, []);
 
-    useEffect(() => { void carregar(); }, [carregar]);
+    useEffect(() => {
+        const fetchDados = async () => {
+            await carregar();
+        };
+        fetchDados();
+    }, [carregar]);
 
     useEffect(() => {
-        setMatriculaGerada(gerarMatricula(form.anoIngresso, form.semestreIngresso));
+        const atualizarMatricula = async () => {
+            setMatriculaGerada(gerarMatricula(form.anoIngresso, form.semestreIngresso));
+        };
+        atualizarMatricula();
     }, [form.anoIngresso, form.semestreIngresso]);
 
     const handle = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -50,19 +58,48 @@ export default function AlunosPage() {
         const run = async () => {
             setSalvando(true); setErro('');
             try {
+                // 1. Limpa o CPF (remove os pontos e o traço)
+                const cpfLimpo = form.cpf.replace(/[^\d]/g, '');
+
+                // 2. Garante que a data está no formato YYYY-MM-DD ou vazia
+                // (Se o seu Java exigir DD/MM/YYYY, você terá de inverter aqui)
+                let dataNascFormatada = undefined;
+                if (form.dataNascimento) {
+                    dataNascFormatada = form.dataNascimento;
+                    // Exemplo de como formatar para DD/MM/YYYY se o Java exigir:
+                    // const [ano, mes, dia] = form.dataNascimento.split('-');
+                    // dataNascFormatada = `${dia}/${mes}/${ano}`;
+                }
+
+                // 3. Monta o payload formatado
                 const payload: Record<string, unknown> = {
                     matricula: matriculaGerada,
-                    nome: form.nome, cpf: form.cpf, email: form.email,
-                    curso: form.curso, telefone: form.telefone, endereco: form.endereco,
-                    status: form.status, dataNascimento: form.dataNascimento || undefined,
-                    tipoAluno: form.tipoAluno,
+                    nome: form.nome,
+                    cpf: cpfLimpo, // Envia o CPF limpo
+                    email: form.email,
+                    curso: form.curso,
+                    telefone: form.telefone,
+                    endereco: form.endereco,
+                    // Converte os status/tipos para UPPERCASE para bater com os Enums do Java
+                    status: form.status.toUpperCase(),
+                    dataNascimento: dataNascFormatada,
+                    tipoAluno: form.tipoAluno.toUpperCase(),
                 };
-                if (form.tipoAluno === 'ESPECIAL') payload.instituicaoOrigem = form.instituicaoOrigem;
+
+                if (form.tipoAluno === 'ESPECIAL') {
+                    payload.instituicaoOrigem = form.instituicaoOrigem;
+                }
+
+                // Dispara a requisição
                 await criarAluno(payload);
                 setSucesso(`Aluno cadastrado! Matrícula: ${matriculaGerada}`);
-                setShowForm(false); void carregar();
-            } catch (err) { setErro(extractErrorMessage(err)); }
-            finally { setSalvando(false); }
+                setShowForm(false);
+                void carregar();
+            } catch (err) {
+                setErro(extractErrorMessage(err));
+            } finally {
+                setSalvando(false);
+            }
         };
         void run();
     };

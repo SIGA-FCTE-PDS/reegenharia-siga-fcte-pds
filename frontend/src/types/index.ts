@@ -1,7 +1,9 @@
+// ─── ENTIDADES ─────────────────────────────────────────────
 export interface Professor {
     id: number;
     nome: string;
     email: string;
+    turmas?: Turma[];
 }
 
 export interface Aluno {
@@ -11,8 +13,11 @@ export interface Aluno {
     email: string;
     curso: string;
     telefone?: string;
+    endereco?: string;
     status: string;
-    matriculas?: Matricula[];
+    dataNascimento?: string;
+    tipoAluno?: string;
+    matriculas?: MatriculaCompleta[];
 }
 
 export interface Disciplina {
@@ -34,17 +39,26 @@ export interface Turma {
     professor?: Professor;
 }
 
-export interface Matricula {
+export interface MatriculaCompleta {
     id: number;
     statusMatricula: string;
     aluno: Aluno;
     turma: Turma;
 }
 
-export interface Avaliacao {
+export interface NotaResponse {
     id: number;
-    descricao: string;
-    turma: Turma;
+    valor: number;
+    avaliacao: { id: number; descricao: string };
+    aluno: { matricula: string; nome: string };
+}
+
+export interface FrequenciaResponse {
+    id: number;
+    data: string;
+    presente: boolean;
+    aluno: { matricula: string; nome: string };
+    turma: { id: number; codigoTurma: string };
 }
 
 export interface Notificacao {
@@ -54,15 +68,11 @@ export interface Notificacao {
     turma: { id: number; codigoTurma: string; disciplina: { nome: string } };
 }
 
-export type UserRole = 'professor' | 'aluno';
+// ─── AUTH ──────────────────────────────────────────────────
+export type UserRole = 'professor' | 'aluno' | 'admin';
 
 export interface AuthUser {
     role: UserRole;
     professor?: Professor;
     aluno?: Aluno;
-}
-
-export interface ApiError {
-    message: string;
-    status?: number;
 }

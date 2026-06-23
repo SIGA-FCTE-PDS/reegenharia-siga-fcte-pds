@@ -944,3 +944,53 @@ body { min-height: 100vh; }
 /* ─── PAGE BTN LOGOUT ───────────────────────────────────── */
 .page .btn-logout { background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-300); border-radius:8px; padding:.4rem .85rem; font-size:.85rem; font-weight:600; cursor:pointer; }
 .page .btn-logout:hover { background:var(--gray-50); }
+
+/* ─── ROLE SELECTOR ─────────────────────────────────────── */
+.role-selector { display:flex; gap:.4rem; background:var(--gray-100); border-radius:10px; padding:.3rem; }
+.role-btn { flex:1; padding:.5rem .4rem; border:none; border-radius:7px; background:transparent; font-size:.8rem; font-weight:600; color:var(--gray-500); cursor:pointer; transition:background .15s,color .15s; white-space:nowrap; }
+.role-btn.active { background:var(--white); color:var(--ufc-blue); box-shadow:var(--shadow-sm); }
+
+/* ─── ABAS ──────────────────────────────────────────────── */
+.abas { display:flex; gap:.25rem; border-bottom:2px solid var(--gray-100); }
+.aba-btn { background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-2px; padding:.6rem 1rem; font-size:.875rem; font-weight:600; color:var(--gray-500); cursor:pointer; display:flex; align-items:center; gap:.4rem; transition:color .15s,border-color .15s; }
+.aba-btn.active { color:var(--ufc-blue); border-bottom-color:var(--ufc-blue); }
+.aba-badge { background:var(--accent); color:#1a1a1a; font-size:.65rem; font-weight:800; border-radius:999px; padding:0 5px; min-width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; }
+
+/* ─── RESUMO BAR ────────────────────────────────────────── */
+.resumo-bar { display:flex; flex-wrap:wrap; gap:.5rem 1.25rem; font-size:.85rem; color:var(--gray-700); background:var(--gray-50); border-radius:8px; padding:.65rem 1rem; }
+
+/* ─── NOTAS ─────────────────────────────────────────────── */
+.nota-valor { font-weight:700; }
+.nota-valor.aprovado { color:var(--success); }
+.nota-valor.reprovado { color:var(--danger); }
+.turma-notas-title { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--gray-500); margin:.5rem 0 .25rem; }
+
+/* ─── HINT TEXT ─────────────────────────────────────────── */
+.hint-text { font-size:.82rem; color:var(--gray-500); margin:.2rem 0; }
+
+/* ─── PERFIL ALUNO ──────────────────────────────────────── */
+.aluno-perfil-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--gray-100); padding:1.5rem; display:flex; align-items:flex-start; gap:1.25rem; box-shadow:var(--shadow-sm); }
+.perfil-avatar { width:52px; height:52px; border-radius:50%; background:var(--ufc-blue); color:var(--white); font-size:1.4rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.perfil-info h2 { font-size:1.1rem; font-weight:700; margin-bottom:.5rem; }
+
+/* ─── TURMA LISTA (aluno) ───────────────────────────────── */
+.turma-lista-item { width:100%; background:none; border:1px solid var(--gray-100); border-radius:8px; padding:.65rem .85rem; margin-bottom:.4rem; cursor:pointer; text-align:left; transition:background .12s,border-color .12s; display:flex; flex-direction:column; gap:.15rem; }
+.turma-lista-item:hover { background:var(--gray-50); }
+.turma-lista-item.active { background:var(--ufc-blue-lt); border-color:var(--ufc-blue-md); }
+.turma-lista-nome { font-size:.875rem; font-weight:700; color:var(--gray-900); }
+.turma-lista-meta { font-size:.75rem; color:var(--gray-500); }
+.turma-card-meta { display:flex; flex-direction:column; gap:.2rem; font-size:.8rem; color:var(--gray-500); }
+
+/* ─── NOTIFICAÇÕES ──────────────────────────────────────── */
+.notif-alerta { background:#FEF3C7; color:#92400E; border-radius:8px; padding:.5rem 1rem; font-size:.85rem; font-weight:600; cursor:pointer; border:1px solid #FDE68A; }
+.notif-lista { display:flex; flex-direction:column; gap:.75rem; }
+.notif-item { background:var(--white); border-radius:var(--radius); border-left:4px solid var(--accent); padding:1rem; display:flex; gap:.75rem; align-items:flex-start; box-shadow:var(--shadow-sm); }
+.notif-icon { font-size:1.2rem; flex-shrink:0; }
+.notif-msg { font-size:.875rem; font-weight:500; color:var(--gray-900); margin-bottom:.2rem; }
+.notif-turma { display:block; font-size:.75rem; color:var(--ufc-blue-md); font-weight:600; }
+.notif-data { display:block; font-size:.72rem; color:var(--gray-500); margin-top:.1rem; }
+
+/* ─── MATRICULA GERADA ──────────────────────────────────── */
+.matricula-gerada-box { background:var(--ufc-blue-lt); border:1.5px dashed var(--ufc-blue-md); border-radius:8px; padding:.85rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.matricula-gerada-label { font-size:.78rem; font-weight:600; color:var(--ufc-blue); text-transform:uppercase; letter-spacing:.06em; }
+.matricula-gerada-valor { font-size:1.1rem; font-weight:800; color:var(--ufc-blue); font-family:monospace; letter-spacing:.08em; }

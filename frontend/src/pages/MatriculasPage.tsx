@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Aluno, Turma, Matricula } from '../types';
-import { getAlunos, getTurmas, getMatriculas, realizarMatricula, cancelarMatricula } from '../services/api';
+import type { Aluno, Turma, MatriculaCompleta } from '../types';
+import { getAlunos, getTurmas, getMatriculasPorTurma, realizarMatricula } from '../services/api';
 import { extractErrorMessage } from '../utils/errorHandler';
 
 export default function MatriculasPage() {
-    const [matriculas, setMatriculas] = useState<Matricula[]>([]);
+    const [matriculas, setMatriculas] = useState<MatriculaCompleta[]>([]);
     const [alunos, setAlunos] = useState<Aluno[]>([]);
     const [turmas, setTurmas] = useState<Turma[]>([]);
     const [loading, setLoading] = useState(true);
@@ -31,15 +31,24 @@ export default function MatriculasPage() {
         const buscarDados = async () => {
             setLoading(true);
             try {
-                const [resM, resA, resT] = await Promise.all([
-                    getMatriculas(),
+                const [resA, resT] = await Promise.all([
                     getAlunos(),
                     getTurmas(),
                 ]);
                 if (!montadoRef.current) return;
-                setMatriculas(resM.data);
                 setAlunos(resA.data);
                 setTurmas(resT.data);
+
+                // Não existe rota para listar todas as matrículas de uma vez,
+                // então agregamos buscando por turma.
+                const turmasData: Turma[] = resT.data;
+                const resultados = await Promise.all(
+                    turmasData.map(t =>
+                        getMatriculasPorTurma(t.id).catch(() => ({ data: [] as MatriculaCompleta[] }))
+                    )
+                );
+                if (!montadoRef.current) return;
+                setMatriculas(resultados.flatMap(r => r.data));
             } catch {
                 // silencioso
             } finally {
@@ -79,23 +88,6 @@ export default function MatriculasPage() {
         };
 
         void submeter();
-    };
-
-    const handleCancelar = (id: number, nomeAluno: string) => {
-        if (!confirm(`Cancelar matrícula de "${nomeAluno}"?`)) return;
-
-        const cancelar = async () => {
-            try {
-                await cancelarMatricula(id);
-                setSucesso('Matrícula cancelada.');
-                carregar();
-            } catch (err) {
-                setSucesso('');
-                setErroModal(extractErrorMessage(err));
-            }
-        };
-
-        void cancelar();
     };
 
     const matriculasFiltradas = matriculas.filter(m =>
@@ -216,12 +208,11 @@ export default function MatriculasPage() {
                             <th>Turma</th>
                             <th>Semestre</th>
                             <th>Status</th>
-                            <th>Ações</th>
                         </tr>
                         </thead>
                         <tbody>
                         {matriculasFiltradas.length === 0 ? (
-                            <tr><td colSpan={7} className="table-empty">Nenhuma matrícula encontrada.</td></tr>
+                            <tr><td colSpan={6} className="table-empty">Nenhuma matrícula encontrada.</td></tr>
                         ) : (
                             matriculasFiltradas.map(m => (
                                 <tr key={m.id}>
@@ -234,11 +225,6 @@ export default function MatriculasPage() {
                       <span className={`badge badge-${m.statusMatricula?.toLowerCase()}`}>
                         {m.statusMatricula}
                       </span>
-                                    </td>
-                                    <td>
-                                        <button className="btn-danger-sm" onClick={() => handleCancelar(m.id, m.aluno?.nome)}>
-                                            Cancelar
-                                        </button>
                                     </td>
                                 </tr>
                             ))

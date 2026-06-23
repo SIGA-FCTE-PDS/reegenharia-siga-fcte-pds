@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { loginProfessor, loginAluno } from '../services/api';
 
+type Role = 'aluno' | 'professor' | 'admin';
+
 export default function Login() {
     const { login } = useAuth();
-    const [role, setRole]           = useState<'aluno' | 'professor'>('aluno');
+    const [role, setRole]           = useState<Role>('aluno');
     const [identifier, setIdentifier] = useState('');
     const [loading, setLoading]     = useState(false);
     const [error, setError]         = useState('');
@@ -14,6 +16,15 @@ export default function Login() {
         const run = async () => {
             setError(''); setLoading(true);
             try {
+                if (role === 'admin') {
+                    // Admin é local — sem endpoint, acesso direto ao painel
+                    if (identifier === 'admin') {
+                        login({ role: 'admin' });
+                    } else {
+                        setError('Código de administrador inválido.');
+                    }
+                    return;
+                }
                 if (role === 'professor') {
                     const { data } = await loginProfessor(Number(identifier));
                     login({ role: 'professor', professor: data });
@@ -22,13 +33,23 @@ export default function Login() {
                     login({ role: 'aluno', aluno: data });
                 }
             } catch {
-                setError(role === 'professor'
-                    ? 'Professor não encontrado. Verifique o ID.'
-                    : 'Aluno não encontrado. Verifique a matrícula.');
+                setError(
+                    role === 'professor' ? 'Professor não encontrado. Verifique o ID.' :
+                        role === 'aluno'     ? 'Aluno não encontrado. Verifique a matrícula.' :
+                            'Código inválido.'
+                );
             } finally { setLoading(false); }
         };
         void run();
     };
+
+    const roles: { key: Role; label: string; icon: string; hint: string }[] = [
+        { key: 'aluno',     label: 'Aluno',           icon: '👤', hint: 'Entre com sua matrícula' },
+        { key: 'professor', label: 'Professor',        icon: '🎓', hint: 'Entre com seu ID' },
+        { key: 'admin',     label: 'Administrador',    icon: '⚙️', hint: 'Entre com o código admin' },
+    ];
+
+    const current = roles.find(r => r.key === role)!;
 
     return (
         <div className="login-page">
@@ -37,28 +58,30 @@ export default function Login() {
                     <div className="logo-icon">S</div>
                     <span className="logo-text">SIGA</span>
                 </div>
-
                 <h1 className="login-title">Bem-vindo ao sistema</h1>
-                <p className="login-sub">Sistema Integrado de Gestão Acadêmica — UFC FCTE</p>
+                <p className="login-sub">UFC FCTE — Sistema Integrado de Gestão Acadêmica</p>
 
+                {/* Seletor de perfil */}
                 <div className="role-selector">
-                    <button type="button" className={`role-btn ${role === 'aluno' ? 'active' : ''}`}
-                            onClick={() => { setRole('aluno'); setIdentifier(''); setError(''); }}>
-                        👤 Sou Aluno
-                    </button>
-                    <button type="button" className={`role-btn ${role === 'professor' ? 'active' : ''}`}
-                            onClick={() => { setRole('professor'); setIdentifier(''); setError(''); }}>
-                        🎓 Sou Professor
-                    </button>
+                    {roles.map(r => (
+                        <button key={r.key} type="button"
+                                className={`role-btn ${role === r.key ? 'active' : ''}`}
+                                onClick={() => { setRole(r.key); setIdentifier(''); setError(''); }}>
+                            {r.icon} {r.label}
+                        </button>
+                    ))}
                 </div>
 
                 <form onSubmit={handleSubmit} className="login-form">
                     <div className="field-group">
-                        <label>{role === 'aluno' ? 'Matrícula' : 'ID do Professor'}</label>
+                        <label>{current.hint}</label>
                         <input
-                            type={role === 'professor' ? 'number' : 'text'}
                             className="input-field"
-                            placeholder={role === 'aluno' ? 'Ex: 2023001234' : 'Ex: 1'}
+                            type={role === 'professor' ? 'number' : 'text'}
+                            placeholder={
+                                role === 'aluno'     ? 'Ex: 2023001234' :
+                                    role === 'professor' ? 'Ex: 1' : 'admin'
+                            }
                             value={identifier}
                             onChange={e => setIdentifier(e.target.value)}
                             required autoFocus
@@ -70,22 +93,7 @@ export default function Login() {
                     </button>
                 </form>
 
-                {/* Botões de teste — remover antes da apresentação */}
-                <div className="login-test-btns">
-                    <span className="login-test-label">Acesso rápido (teste)</span>
-                    <div style={{ display: 'flex', gap: '.5rem' }}>
-                        <button type="button" className="btn-test"
-                                onClick={() => login({ role: 'professor', professor: { id: 1, nome: 'Prof. Teste', email: 'prof@ufc.br' } })}>
-                            Prof. Teste
-                        </button>
-                        <button type="button" className="btn-test btn-test-aluno"
-                                onClick={() => login({ role: 'aluno', aluno: { matricula: '2023001234', nome: 'Aluno Teste', email: 'aluno@ufc.br', curso: 'Eng. Software', status: 'ATIVO', cpf: '', matriculas: [] } })}>
-                            Aluno Teste
-                        </button>
-                    </div>
-                </div>
-
-                <p className="login-footer">UFC — Quixadá · FCTE</p>
+                <p className="login-footer">UFC · Quixadá · FCTE</p>
             </div>
         </div>
     );
