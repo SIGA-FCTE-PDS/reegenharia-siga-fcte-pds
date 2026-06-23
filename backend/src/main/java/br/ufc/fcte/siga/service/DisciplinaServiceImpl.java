@@ -3,6 +3,7 @@ package br.ufc.fcte.siga.service;
 import br.ufc.fcte.siga.dao.DisciplinaDAO;
 import br.ufc.fcte.siga.dto.DisciplinaRequestDTO;
 import br.ufc.fcte.siga.dto.DisciplinaResponseDTO;
+import br.ufc.fcte.siga.exception.CargaHorariaInvalidaException;
 import br.ufc.fcte.siga.exception.DisciplinaDuplicadaException;
 import br.ufc.fcte.siga.exception.DisciplinaNaoEncontradaException;
 import br.ufc.fcte.siga.mapper.DisciplinaMapper;
@@ -25,9 +26,10 @@ public class DisciplinaServiceImpl implements DisciplinaService {
 
     @Override
     public DisciplinaResponseDTO criar(DisciplinaRequestDTO dto) {
-        // RN: codigo é o @Id e vem do usuário (não é autogerado), então precisa
-        // validar duplicidade explicitamente antes de salvar
-        if (disciplinaDAO.existsById(dto.getCodigo())) {
+        validarCargaHoraria(dto.getCargaHoraria());
+
+        // RN (SF-61): impede duplicidade de código antes de persistir
+        if (disciplinaDAO.existsByCodigo(dto.getCodigo())) {
             throw new DisciplinaDuplicadaException("Já existe uma disciplina cadastrada com este código.");
         }
 
@@ -56,6 +58,8 @@ public class DisciplinaServiceImpl implements DisciplinaService {
         Disciplina disciplina = disciplinaDAO.findById(codigo)
                 .orElseThrow(() -> new DisciplinaNaoEncontradaException("Disciplina não encontrada com código: " + codigo));
 
+        validarCargaHoraria(dto.getCargaHoraria());
+
         DisciplinaMapper.updateEntityFromDTO(disciplina, dto);
         Disciplina atualizada = disciplinaDAO.save(disciplina);
         return DisciplinaMapper.toResponseDTO(atualizada);
@@ -67,5 +71,14 @@ public class DisciplinaServiceImpl implements DisciplinaService {
             throw new DisciplinaNaoEncontradaException("Disciplina não encontrada com código: " + codigo);
         }
         disciplinaDAO.deleteById(codigo);
+    }
+
+    // RN (SF-61): impede o cadastro/atualização de disciplinas com carga horária
+    // negativa ou zero, garantido na Service antes de qualquer chamada ao DAO.
+    private void validarCargaHoraria(int cargaHoraria) {
+        if (cargaHoraria <= 0) {
+            throw new CargaHorariaInvalidaException(
+                    "Carga horária deve ser maior que zero. Valor informado: " + cargaHoraria);
+        }
     }
 }

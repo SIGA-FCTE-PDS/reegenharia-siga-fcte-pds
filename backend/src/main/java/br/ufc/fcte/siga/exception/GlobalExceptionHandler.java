@@ -28,21 +28,26 @@ public class GlobalExceptionHandler {
         return construirResposta(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    // 409 - conflito (duplicidade ou turma lotada)
+    // 409 - conflito (duplicidade, turma lotada, ou violação de integridade referencial)
     @ExceptionHandler({
             CpfDuplicadoException.class,
             EmailDuplicadoException.class,
             DisciplinaDuplicadaException.class,
             MatriculaDuplicadaException.class,
-            TurmaLotadaException.class
+            TurmaLotadaException.class,
+            ProfessorComTurmaAtivaException.class
     })
     public ResponseEntity<ErroResponseDTO> tratarConflito(RuntimeException ex) {
         return construirResposta(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    // 400 - dados de entrada inválidos (ex: codigoCurso ausente na geração de matrícula)
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErroResponseDTO> tratarArgumentoInvalido(IllegalArgumentException ex) {
+    // 400 - dados de entrada inválidos (ex: codigoCurso ausente, email malformado, carga horária <= 0)
+    @ExceptionHandler({
+            IllegalArgumentException.class,
+            EmailInvalidoException.class,
+            CargaHorariaInvalidaException.class
+    })
+    public ResponseEntity<ErroResponseDTO> tratarArgumentoInvalido(RuntimeException ex) {
         return construirResposta(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
