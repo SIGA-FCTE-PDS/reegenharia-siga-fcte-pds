@@ -11,12 +11,18 @@ export default function Navbar({ current, onChange }: Props) {
     const { user, logout } = useAuth();
     const isProfessor = user?.role === 'professor';
 
-    const links: { id: Page; label: string; icon: string }[] = [
+    // 1. Array com todos os links possíveis
+    const todosOsLinks: { id: Page; label: string; icon: string }[] = [
         { id: 'dashboard', label: isProfessor ? 'Boletim' : 'Início', icon: '🏠' },
         { id: 'alunos',    label: 'Alunos',    icon: '👤' },
         { id: 'turmas',    label: 'Turmas',    icon: '📚' },
         { id: 'matriculas',label: 'Matrículas',icon: '📋' },
     ];
+
+    // 2. A MÁGICA AQUI: Filtramos os links baseados no papel (role)
+    const linksPermitidos = isProfessor
+        ? todosOsLinks
+        : todosOsLinks.filter(link => link.id === 'dashboard');
 
     const nomeUsuario = isProfessor
         ? user?.professor?.nome
@@ -30,7 +36,8 @@ export default function Navbar({ current, onChange }: Props) {
             </div>
 
             <nav className="navbar-links">
-                {links.map(l => (
+                {/* 3. Renderizamos apenas os links que passaram no filtro */}
+                {linksPermitidos.map(l => (
                     <button
                         key={l.id}
                         className={`nav-link ${current === l.id ? 'active' : ''}`}

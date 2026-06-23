@@ -18,14 +18,17 @@ function AppRouter() {
     if (!user) return <Login />;
 
     const renderPage = () => {
+        // Trava de segurança: Aluno SÓ pode ver o próprio dashboard.
+        if (user.role === 'aluno') {
+            return <AlunoDashboard />;
+        }
+
+        // Se for professor, ele tem acesso livre para navegar nas telas:
         switch (page) {
             case 'alunos':     return <AlunosPage />;
             case 'turmas':     return <TurmasPage />;
             case 'matriculas': return <MatriculasPage />;
-            default:
-                return user.role === 'professor'
-                    ? <ProfessorDashboard />
-                    : <AlunoDashboard />;
+            default:           return <ProfessorDashboard />;
         }
     };
 
