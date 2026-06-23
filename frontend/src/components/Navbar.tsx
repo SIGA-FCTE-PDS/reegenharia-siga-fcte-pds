@@ -1,28 +1,30 @@
 import { useAuth } from '../context/AuthContext';
-
-type Page = 'dashboard' | 'alunos' | 'turmas' | 'matriculas';
+// Importamos o AppPage unificado que criamos no App.tsx
+import type { AppPage } from '../App';
 
 interface Props {
-    current: Page;
-    onChange: (p: Page) => void;
+    current: AppPage;
+    onChange: (p: AppPage) => void;
 }
 
 export default function Navbar({ current, onChange }: Props) {
     const { user, logout } = useAuth();
     const isProfessor = user?.role === 'professor';
+    const isAdmin = user?.role === 'admin'; // Adicionado para facilitar a lógica
 
-    // 1. Array com todos os links possíveis
-    const todosOsLinks: { id: Page; label: string; icon: string }[] = [
-        { id: 'dashboard', label: isProfessor ? 'Boletim' : 'Início', icon: '🏠' },
-        { id: 'alunos',    label: 'Alunos',    icon: '👤' },
-        { id: 'turmas',    label: 'Turmas',    icon: '📚' },
-        { id: 'matriculas',label: 'Matrículas',icon: '📋' },
+    // Adicionamos 'turmas' de volta ao array de opções
+    const todosOsLinks: { id: AppPage; label: string; icon: string }[] = [
+        { id: 'dashboard',  label: isProfessor ? 'Boletim' : 'Início', icon: '🏠' },
+        { id: 'alunos',     label: 'Alunos',     icon: '👤' },
+        { id: 'turmas',     label: 'Turmas',     icon: '📚' },
+        { id: 'matriculas', label: 'Matrículas', icon: '📋' },
     ];
 
-    // 2. A MÁGICA AQUI: Filtramos os links baseados no papel (role)
-    const linksPermitidos = isProfessor
+    // Lógica de visibilidade:
+    // ADMIN vê tudo. PROFESSOR e ALUNO veem apenas o que lhes cabe.
+    const linksPermitidos = isAdmin
         ? todosOsLinks
-        : todosOsLinks.filter(link => link.id === 'dashboard');
+        : todosOsLinks.filter(l => l.id === 'dashboard');
 
     const nomeUsuario = isProfessor
         ? user?.professor?.nome
@@ -36,7 +38,6 @@ export default function Navbar({ current, onChange }: Props) {
             </div>
 
             <nav className="navbar-links">
-                {/* 3. Renderizamos apenas os links que passaram no filtro */}
                 {linksPermitidos.map(l => (
                     <button
                         key={l.id}
@@ -51,7 +52,7 @@ export default function Navbar({ current, onChange }: Props) {
 
             <div className="navbar-footer">
                 <div className="nav-user">
-                    <span className="nav-user-role">{isProfessor ? 'Professor' : 'Aluno'}</span>
+                    <span className="nav-user-role">{user?.role}</span>
                     <span className="nav-user-name">{nomeUsuario}</span>
                 </div>
                 <button className="btn-logout-nav" onClick={logout}>Sair</button>

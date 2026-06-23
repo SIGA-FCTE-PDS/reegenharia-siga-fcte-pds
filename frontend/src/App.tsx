@@ -1,21 +1,23 @@
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Login           from './pages/Login';
+import Login from './pages/Login';
 import ProfessorDashboard from './pages/ProfessorDashboard';
-import AlunoDashboard  from './pages/AlunoDashboard';
-import AdminDashboard  from './pages/AdminDashboard';
-import Navbar          from './components/Navbar';
+import AlunoDashboard from './pages/AlunoDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import Navbar from './components/Navbar';
 import './App.css';
 
-type Page = 'dashboard' | 'alunos' | 'turmas' | 'matriculas';
+// Renomeado de 'Page' para 'AppPage' para evitar conflitos de tipo (TS2719)
+export type AppPage = 'dashboard' | 'alunos' | 'turmas' | 'matriculas';
 
 function AppRouter() {
     const { user } = useAuth();
-    const [page, setPage] = useState<Page>('dashboard');
+    // Utilizando o tipo unificado AppPage
+    const [page, setPage] = useState<AppPage>('dashboard');
 
     if (!user) return <Login />;
 
-    // PROFESSOR — só vê o painel de notas/frequência, sem acesso ao CRUD
+    // PROFESSOR — só vê o painel de notas/frequência
     if (user.role === 'professor') {
         return (
             <div className="app-layout">
@@ -25,7 +27,7 @@ function AppRouter() {
         );
     }
 
-    // ALUNO — só vê o painel com suas turmas, notas, frequência e notificações
+    // ALUNO — vê o painel com suas turmas, notas, frequência e notificações
     if (user.role === 'aluno') {
         return (
             <div className="app-layout">

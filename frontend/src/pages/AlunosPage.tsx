@@ -73,18 +73,25 @@ export default function AlunosPage() {
 
                 // 3. Monta o payload formatado
                 const payload: Record<string, unknown> = {
-                    matricula: matriculaGerada,
-                    nome: form.nome,
-                    cpf: cpfLimpo, // Envia o CPF limpo
-                    email: form.email,
-                    curso: form.curso,
-                    telefone: form.telefone,
-                    endereco: form.endereco,
-                    // Converte os status/tipos para UPPERCASE para bater com os Enums do Java
-                    status: form.status.toUpperCase(),
-                    dataNascimento: dataNascFormatada,
                     tipoAluno: form.tipoAluno.toUpperCase(),
+                    nome: form.nome,
+                    cpf: cpfLimpo,
+                    curso: form.curso,
+                    // Enviamos um código numérico para satisfazer o backend na geração da matrícula
+                    codigoCurso: "03",
+                    email: form.email,
+                    dataNascimento: dataNascFormatada,
+                    endereco: form.endereco,
+                    telefone: form.telefone,
+
+                    // O backend precisa destes dois campos numéricos/texto para gerar a matrícula
+                    anoIngresso: Number(form.anoIngresso),
+                    semestreIngresso: form.semestreIngresso
                 };
+
+                if (form.tipoAluno === 'ESPECIAL') {
+                    payload.instituicaoOrigem = form.instituicaoOrigem;
+                }
 
                 if (form.tipoAluno === 'ESPECIAL') {
                     payload.instituicaoOrigem = form.instituicaoOrigem;
