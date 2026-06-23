@@ -39,4 +39,6 @@ public class Aluno {
     // mappedBy = "aluno" indica que a chave estrangeira vai ficar na classe Matricula
     @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL)
     private List<Matricula> matriculas;
+
+
 }
