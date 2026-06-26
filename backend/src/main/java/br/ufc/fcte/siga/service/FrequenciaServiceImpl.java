@@ -21,10 +21,6 @@ import java.util.stream.Collectors;
 @Service
 public class FrequenciaServiceImpl implements FrequenciaService {
 
-    // Regra definida com o PO: cada registro de falta (presente=false) vale 2 faltas.
-    // Com 16 faltas o aluno ainda passa, mas já está no limite crítico (mais 1 falta reprova).
-    // Com 18 faltas o aluno está reprovado por frequência.
-    private static final int FALTAS_POR_REGISTRO = 2;
     private static final int LIMITE_CRITICO_FALTAS = 16;
     private static final int LIMITE_REPROVACAO_FALTAS = 18;
 
@@ -53,36 +49,29 @@ public class FrequenciaServiceImpl implements FrequenciaService {
                 .orElseThrow(() -> new TurmaNaoEncontradaException(
                         "Turma não encontrada com id: " + dto.getTurmaId()));
 
-        // Conta quantos registros de FALTA esse aluno já tinha nesta turma ANTES deste novo registro
-        int faltasAntesDoRegistro = contarFaltas(dto.getMatriculaAluno(), dto.getTurmaId());
+        int faltasAntes = somarFaltas(dto.getMatriculaAluno(), dto.getTurmaId());
 
         Frequencia frequencia = new Frequencia();
         frequencia.setAluno(aluno);
         frequencia.setTurma(turma);
         frequencia.setData(dto.getData());
         frequencia.setPresente(dto.isPresente());
+        frequencia.setQuantidadeFaltas(dto.getQuantidadeFaltas());
 
         Frequencia salva = frequenciaDAO.save(frequencia);
 
-        // Só recalcula e dispara o Observer se o registro for uma FALTA
-        // (uma presença nunca pode causar excesso de faltas)
         if (!dto.isPresente()) {
-            int faltasDepoisDoRegistro = faltasAntesDoRegistro + 1;
+            int faltasDepois = faltasAntes + dto.getQuantidadeFaltas();
 
-            int totalFaltasAntes = faltasAntesDoRegistro * FALTAS_POR_REGISTRO;
-            int totalFaltasDepois = faltasDepoisDoRegistro * FALTAS_POR_REGISTRO;
-
-            // Dispara cada alerta só na transição exata (cruzou o limite agora), evitando
-            // notificar de novo em toda falta subsequente após o aluno já ter passado do limite
             boolean cruzouLimiteCriticoAgora =
-                    totalFaltasAntes < LIMITE_CRITICO_FALTAS && totalFaltasDepois >= LIMITE_CRITICO_FALTAS;
+                    faltasAntes < LIMITE_CRITICO_FALTAS && faltasDepois >= LIMITE_CRITICO_FALTAS;
             boolean cruzouLimiteReprovacaoAgora =
-                    totalFaltasAntes < LIMITE_REPROVACAO_FALTAS && totalFaltasDepois >= LIMITE_REPROVACAO_FALTAS;
+                    faltasAntes < LIMITE_REPROVACAO_FALTAS && faltasDepois >= LIMITE_REPROVACAO_FALTAS;
 
             if (cruzouLimiteReprovacaoAgora) {
-                frequenciaSubject.notificarReprovacaoPorFalta(aluno, turma, totalFaltasDepois);
+                frequenciaSubject.notificarReprovacaoPorFalta(aluno, turma, faltasDepois);
             } else if (cruzouLimiteCriticoAgora) {
-                frequenciaSubject.notificarLimiteCritico(aluno, turma, totalFaltasDepois);
+                frequenciaSubject.notificarLimiteCritico(aluno, turma, faltasDepois);
             }
         }
 
@@ -97,11 +86,12 @@ public class FrequenciaServiceImpl implements FrequenciaService {
                 .collect(Collectors.toList());
     }
 
-    private int contarFaltas(String matriculaAluno, Long turmaId) {
-        return (int) frequenciaDAO.findByAlunoMatriculaAndTurmaId(matriculaAluno, turmaId)
+    private int somarFaltas(String matriculaAluno, Long turmaId) {
+        return frequenciaDAO.findByAlunoMatriculaAndTurmaId(matriculaAluno, turmaId)
                 .stream()
                 .filter(f -> !f.isPresente())
-                .count();
+                .mapToInt(Frequencia::getQuantidadeFaltas)
+                .sum();
     }
 
     private FrequenciaResponseDTO toResponseDTO(Frequencia frequencia) {

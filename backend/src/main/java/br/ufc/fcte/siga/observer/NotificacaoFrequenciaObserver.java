@@ -7,10 +7,6 @@ import br.ufc.fcte.siga.model.Turma;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Observer concreto (SF-57): ao ser notificado de excesso de faltas,
- * cria e persiste uma Notificacao para o aluno ver no frontend (SF-62 depende disto).
- */
 @Component
 public class NotificacaoFrequenciaObserver implements FrequenciaObserver {
 
@@ -24,7 +20,7 @@ public class NotificacaoFrequenciaObserver implements FrequenciaObserver {
     @Override
     public void aoAtingirLimiteCritico(Aluno aluno, Turma turma, int totalFaltas) {
         String mensagem = String.format(
-                "Atenção: você já tem %d faltas na disciplina %s. Mais uma falta e você será reprovado por frequência.",
+                "Atenção: você já tem %d faltas na disciplina %s. Mais uma e você será reprovado por falta.",
                 totalFaltas,
                 turma.getDisciplina().getNome()
         );

@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 
 /**
- * Handler global de exceptions da API (SF-58).
- * Garante que toda exceção de negócio vira um JSON simples com o status HTTP
- * correto, em vez de um erro 500 genérico com stacktrace.
+ * Handler global de exceptions da API.
+ *
+ * ATUALIZADO (resolução de gaps críticos apontados pelo front-end):
+ * - Adicionado CursoNaoEncontradoException e MatriculaNaoEncontradaException ao grupo 404
+ * - Adicionado CursoDuplicadoException ao grupo 409
+ * - Adicionado CapacidadeInvalidaException ao grupo 400
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -22,39 +25,44 @@ public class GlobalExceptionHandler {
             ProfessorNaoEncontradoException.class,
             DisciplinaNaoEncontradaException.class,
             TurmaNaoEncontradaException.class,
-            AvaliacaoNaoEncontradaException.class
+            AvaliacaoNaoEncontradaException.class,
+            CursoNaoEncontradoException.class,       // NOVO
+            MatriculaNaoEncontradaException.class    // NOVO
     })
     public ResponseEntity<ErroResponseDTO> tratarNaoEncontrado(RuntimeException ex) {
         return construirResposta(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    // 409 - conflito (duplicidade, turma lotada, ou violação de integridade referencial)
+    // 409 - conflito
     @ExceptionHandler({
             CpfDuplicadoException.class,
             EmailDuplicadoException.class,
             DisciplinaDuplicadaException.class,
             MatriculaDuplicadaException.class,
             TurmaLotadaException.class,
-            ProfessorComTurmaAtivaException.class
+            ProfessorComTurmaAtivaException.class,
+            CursoDuplicadoException.class            // NOVO
     })
     public ResponseEntity<ErroResponseDTO> tratarConflito(RuntimeException ex) {
         return construirResposta(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    // 400 - dados de entrada inválidos (ex: codigoCurso ausente, email malformado, carga horária <= 0)
+    // 400 - dados de entrada inválidos
     @ExceptionHandler({
             IllegalArgumentException.class,
             EmailInvalidoException.class,
-            CargaHorariaInvalidaException.class
+            CargaHorariaInvalidaException.class,
+            CapacidadeInvalidaException.class        // NOVO
     })
     public ResponseEntity<ErroResponseDTO> tratarArgumentoInvalido(RuntimeException ex) {
         return construirResposta(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    // 500 - qualquer outro erro não previsto, para nunca devolver stacktrace puro ao frontend
+    // 500 - erro interno (MODIFICADO PARA DEBUG)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErroResponseDTO> tratarErroGenerico(Exception ex) {
-        return construirResposta(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno inesperado. Contate o suporte.");
+        ex.printStackTrace();
+        return construirResposta(HttpStatus.INTERNAL_SERVER_ERROR, "ERRO REAL: " + ex.toString());
     }
 
     private ResponseEntity<ErroResponseDTO> construirResposta(HttpStatus status, String mensagem) {

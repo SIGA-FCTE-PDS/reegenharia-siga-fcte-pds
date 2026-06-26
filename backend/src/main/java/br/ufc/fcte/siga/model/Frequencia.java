@@ -23,6 +23,10 @@ public class Frequencia {
     @Column(nullable = false)
     private boolean presente; // true = Presença, false = Falta
 
+    // ⬅️ AQUI ESTÁ A PEÇA QUE FALTAVA PARA O CÓDIGO COMPILAR!
+    @Column(nullable = false)
+    private int quantidadeFaltas;
+
     // Relacionamento N:1 com Turma
     @ManyToOne
     @JoinColumn(name = "turma_id", nullable = false)

@@ -24,7 +24,6 @@ public class Disciplina {
     // Campo obrigatório adicionado para atender ao RF02
     private String tipo;
 
-    // Lista de textos mantida para testes iniciais da RN02/RN10
     @ElementCollection
     @CollectionTable(name = "disciplina_prerequisitos_temp", joinColumns = @JoinColumn(name = "disciplina_codigo"))
     @Column(name = "codigo_prerequisito")

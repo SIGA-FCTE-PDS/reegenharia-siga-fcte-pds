@@ -29,35 +29,30 @@ public class AlunoServiceImpl implements AlunoService {
 
     @Override
     public AlunoResponseDTO criar(AlunoRequestDTO dto) {
-        // RN: CPF não pode se repetir (a coluna já é unique no banco, mas validamos antes
-        // para dar uma mensagem de erro clara em vez de deixar o banco estourar exceção)
         if (alunoDAO.existsByCpf(dto.getCpf())) {
             throw new CpfDuplicadoException("Já existe um aluno cadastrado com este CPF.");
         }
 
         String matricula = gerarMatricula(dto);
 
-        // Verificação de segurança: evita salvar sobre uma matrícula já existente
-        // em caso de concorrência (duas criações simultâneas gerando o mesmo sequencial)
         if (alunoDAO.existsById(matricula)) {
             throw new MatriculaDuplicadaException("Conflito ao gerar matrícula, tente novamente: " + matricula);
         }
 
-        // A criação do objeto (NORMAL ou ESPECIAL) é centralizada na Factory já existente no projeto
         Aluno aluno = AlunoFactory.criarAluno(
                 dto.getTipoAluno(),
                 matricula,
                 dto.getNome(),
                 dto.getCpf(),
-                dto.getCurso(),
+                dto.getCurso(), // Envia o nome do curso para a Factory
                 dto.getInstituicaoOrigem()
         );
 
-        // Campos que a Factory não trata, mas existem no DTO
         aluno.setEmail(dto.getEmail());
         aluno.setDataNascimento(dto.getDataNascimento());
         aluno.setEndereco(dto.getEndereco());
         aluno.setTelefone(dto.getTelefone());
+        aluno.setCurso(dto.getCurso());
 
         Aluno salvo = alunoDAO.save(aluno);
         return AlunoMapper.toResponseDTO(salvo);
@@ -97,16 +92,6 @@ public class AlunoServiceImpl implements AlunoService {
         alunoDAO.deleteById(matricula);
     }
 
-    /**
-     * Gera a matrícula conforme regra definida com o PO:
-     * matricula = ano (4 dígitos) + semestre (1 dígito) + codigoCurso (2 dígitos) + sequencial (3 dígitos)
-     *
-     * Exemplo: ano 2026, semestre 1, curso código "03", e já existem 10 alunos no curso
-     * -> sequencial do novo aluno é 11 -> matrícula = "2026" + "1" + "03" + "011" = "2026103011"
-     *
-     * O sequencial é a quantidade de alunos JÁ EXISTENTES no curso (alunoDAO.countByCurso),
-     * +1 para o novo aluno sendo criado agora.
-     */
     private String gerarMatricula(AlunoRequestDTO dto) {
         LocalDate hoje = LocalDate.now();
 
@@ -120,7 +105,6 @@ public class AlunoServiceImpl implements AlunoService {
         if (codigoCurso == null || codigoCurso.isBlank()) {
             throw new IllegalArgumentException("O código do curso (codigoCurso) é obrigatório para gerar a matrícula.");
         }
-
         long quantidadeExistente = alunoDAO.countByCurso(dto.getCurso());
         long proximoSequencial = quantidadeExistente + 1;
 

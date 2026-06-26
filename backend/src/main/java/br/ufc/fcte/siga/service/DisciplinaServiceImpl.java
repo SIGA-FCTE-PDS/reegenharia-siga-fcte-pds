@@ -28,12 +28,13 @@ public class DisciplinaServiceImpl implements DisciplinaService {
     public DisciplinaResponseDTO criar(DisciplinaRequestDTO dto) {
         validarCargaHoraria(dto.getCargaHoraria());
 
-        // RN (SF-61): impede duplicidade de código antes de persistir
         if (disciplinaDAO.existsByCodigo(dto.getCodigo())) {
             throw new DisciplinaDuplicadaException("Já existe uma disciplina cadastrada com este código.");
         }
 
         Disciplina disciplina = DisciplinaMapper.toEntity(dto);
+        disciplina.setCodigo(dto.getCodigo());
+
         Disciplina salva = disciplinaDAO.save(disciplina);
         return DisciplinaMapper.toResponseDTO(salva);
     }
@@ -61,6 +62,8 @@ public class DisciplinaServiceImpl implements DisciplinaService {
         validarCargaHoraria(dto.getCargaHoraria());
 
         DisciplinaMapper.updateEntityFromDTO(disciplina, dto);
+        disciplina.setCodigo(codigo);
+
         Disciplina atualizada = disciplinaDAO.save(disciplina);
         return DisciplinaMapper.toResponseDTO(atualizada);
     }
@@ -73,8 +76,6 @@ public class DisciplinaServiceImpl implements DisciplinaService {
         disciplinaDAO.deleteById(codigo);
     }
 
-    // RN (SF-61): impede o cadastro/atualização de disciplinas com carga horária
-    // negativa ou zero, garantido na Service antes de qualquer chamada ao DAO.
     private void validarCargaHoraria(int cargaHoraria) {
         if (cargaHoraria <= 0) {
             throw new CargaHorariaInvalidaException(

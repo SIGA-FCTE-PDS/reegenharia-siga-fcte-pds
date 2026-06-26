@@ -37,6 +37,5 @@ public class DisciplinaMapper {
         disciplina.setCargaHoraria(dto.getCargaHoraria());
         disciplina.setTipo(dto.getTipo());
         disciplina.setPreRequisitos(dto.getPreRequisitos());
-        // codigo não é atualizado, é o @Id
     }
 }

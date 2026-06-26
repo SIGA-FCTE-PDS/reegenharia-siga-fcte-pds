@@ -3,8 +3,7 @@ package br.ufc.fcte.siga.dto;
 import lombok.Data;
 
 /**
- * DTO de entrada para criação/atualização de Professor.
- * Não inclui 'id' (autogerado) nem 'turmas' (evita loop de serialização).
+ * DTO de entrada para criação/atualização de Professor
  */
 @Data
 

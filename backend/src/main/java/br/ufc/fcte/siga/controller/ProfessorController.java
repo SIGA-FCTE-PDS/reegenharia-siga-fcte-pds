@@ -39,8 +39,7 @@ public class ProfessorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProfessorResponseDTO> atualizar(@PathVariable Long id,
-                                                          @RequestBody ProfessorRequestDTO dto) {
+    public ResponseEntity<ProfessorResponseDTO> atualizar(@PathVariable Long id, @RequestBody ProfessorRequestDTO dto) {
         return ResponseEntity.ok(professorService.atualizar(id, dto));
     }
 
@@ -48,5 +47,12 @@ public class ProfessorController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         professorService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ROTA DE LOGIN DO FRONT
+    @GetMapping("/email/{email}")
+    public ResponseEntity<ProfessorResponseDTO> buscarPorEmail(@PathVariable String email) {
+        ProfessorResponseDTO professor = professorService.buscarPorEmail(email);
+        return ResponseEntity.ok(professor);
     }
 }

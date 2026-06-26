@@ -1,7 +1,7 @@
 package br.ufc.fcte.siga.controller;
 
-import br.ufc.fcte.siga.dto.MatriculaRequestDTO;
-import br.ufc.fcte.siga.dto.MatriculaResponseDTO;
+import br.ufc.fcte.siga.dto.TurmaRequestDTO;
+import br.ufc.fcte.siga.dto.TurmaResponseDTO;
 import br.ufc.fcte.siga.service.TurmaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,14 +22,19 @@ public class TurmaController {
         this.turmaService = turmaService;
     }
 
-    @PostMapping("/matriculas")
-    public ResponseEntity<MatriculaResponseDTO> matricularAluno(@RequestBody MatriculaRequestDTO dto) {
-        MatriculaResponseDTO matricula = turmaService.matricularAluno(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(matricula);
+    @PostMapping
+    public ResponseEntity<TurmaResponseDTO> criar(@RequestBody TurmaRequestDTO dto) {
+        TurmaResponseDTO criada = turmaService.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(criada);
     }
 
-    @GetMapping("/{turmaId}/matriculas")
-    public ResponseEntity<List<MatriculaResponseDTO>> listarMatriculasPorTurma(@PathVariable Long turmaId) {
-        return ResponseEntity.ok(turmaService.listarMatriculasPorTurma(turmaId));
+    @GetMapping
+    public ResponseEntity<List<TurmaResponseDTO>> listarTodas() {
+        return ResponseEntity.ok(turmaService.listarTodas());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TurmaResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(turmaService.buscarPorId(id));
     }
 }

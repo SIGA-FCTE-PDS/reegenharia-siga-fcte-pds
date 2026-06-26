@@ -1,16 +1,20 @@
 package br.ufc.fcte.siga.service;
 
 import br.ufc.fcte.siga.dao.AlunoDAO;
+import br.ufc.fcte.siga.dao.DisciplinaDAO;
 import br.ufc.fcte.siga.dao.MatriculaDAO;
+import br.ufc.fcte.siga.dao.ProfessorDAO;
 import br.ufc.fcte.siga.dao.TurmaDAO;
 import br.ufc.fcte.siga.dto.MatriculaRequestDTO;
 import br.ufc.fcte.siga.dto.MatriculaResponseDTO;
-import br.ufc.fcte.siga.exception.AlunoNaoEncontradoException;
-import br.ufc.fcte.siga.exception.MatriculaDuplicadaException;
-import br.ufc.fcte.siga.exception.TurmaLotadaException;
-import br.ufc.fcte.siga.exception.TurmaNaoEncontradaException;
+import br.ufc.fcte.siga.dto.TurmaRequestDTO;
+import br.ufc.fcte.siga.dto.TurmaResponseDTO;
+import br.ufc.fcte.siga.exception.*;
+import br.ufc.fcte.siga.mapper.TurmaMapper;
 import br.ufc.fcte.siga.model.Aluno;
+import br.ufc.fcte.siga.model.Disciplina;
 import br.ufc.fcte.siga.model.Matricula;
+import br.ufc.fcte.siga.model.Professor;
 import br.ufc.fcte.siga.model.Turma;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,51 +26,77 @@ import java.util.stream.Collectors;
 @Service
 public class TurmaServiceImpl implements TurmaService {
 
-    // Status usado quando a matrícula está ocupando vaga normalmente (RN08, ver Matricula.java)
     private static final String STATUS_ATIVA = "ATIVA";
 
     private final TurmaDAO turmaDAO;
     private final AlunoDAO alunoDAO;
     private final MatriculaDAO matriculaDAO;
+    private final DisciplinaDAO disciplinaDAO;
+    private final ProfessorDAO professorDAO;
 
     @Autowired
-    public TurmaServiceImpl(TurmaDAO turmaDAO, AlunoDAO alunoDAO, MatriculaDAO matriculaDAO) {
+    public TurmaServiceImpl(TurmaDAO turmaDAO, AlunoDAO alunoDAO, MatriculaDAO matriculaDAO, DisciplinaDAO disciplinaDAO, ProfessorDAO professorDAO) {
         this.turmaDAO = turmaDAO;
         this.alunoDAO = alunoDAO;
         this.matriculaDAO = matriculaDAO;
+        this.disciplinaDAO = disciplinaDAO;
+        this.professorDAO = professorDAO;
+    }
+    @Override
+    public TurmaResponseDTO criar(TurmaRequestDTO dto) {
+        Disciplina disciplina = disciplinaDAO.findById(dto.getDisciplinaCodigo())
+                .orElseThrow(() -> new DisciplinaNaoEncontradaException("Disciplina não encontrada: " + dto.getDisciplinaCodigo()));
+
+        Professor professor = professorDAO.findById(dto.getProfessorId())
+                .orElseThrow(() -> new ProfessorNaoEncontradoException("Professor não encontrado: " + dto.getProfessorId()));
+
+        Turma turma = new Turma();
+        turma.setCodigoTurma(dto.getCodigoTurma());
+        turma.setSemestreLetivo(dto.getSemestreLetivo());
+        turma.setSala(dto.getSala());
+        turma.setHorario(dto.getHorario());
+        turma.setCapacidadeMaxima(dto.getCapacidadeMaxima());
+        turma.setModalidade(dto.getModalidade());
+        turma.setDisciplina(disciplina);
+        turma.setProfessor(professor);
+
+        Turma turmaSalva = turmaDAO.save(turma);
+        return TurmaMapper.toResponseDTO(turmaSalva, 0); // Vagas ocupadas inicialmente é 0
     }
 
-    /**
-     * Matricula um aluno em uma turma (SF-56).
-     *
-     * RN01: a matrícula só é permitida se a turma ainda tiver vagas disponíveis,
-     * ou seja, se a quantidade de matrículas ATIVAS na turma for menor que a capacidadeMaxima.
-     *
-     * @Transactional garante que a contagem de vagas e o save acontecem de forma atômica,
-     * evitando que duas requisições simultâneas "furem" o limite de vagas.
-     */
+    @Override
+    public List<TurmaResponseDTO> listarTodas() {
+        return turmaDAO.findAll().stream()
+                .map(t -> {
+                    int vagasOcupadas = (int) matriculaDAO.countByTurmaIdAndStatusMatricula(t.getId(), STATUS_ATIVA);
+                    return TurmaMapper.toResponseDTO(t, vagasOcupadas);
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public TurmaResponseDTO buscarPorId(Long id) {
+        Turma turma = turmaDAO.findById(id)
+                .orElseThrow(() -> new TurmaNaoEncontradaException("Turma não encontrada com ID: " + id));
+        int vagasOcupadas = (int) matriculaDAO.countByTurmaIdAndStatusMatricula(turma.getId(), STATUS_ATIVA);
+        return TurmaMapper.toResponseDTO(turma, vagasOcupadas);
+    }
     @Override
     @Transactional
     public MatriculaResponseDTO matricularAluno(MatriculaRequestDTO dto) {
         Aluno aluno = alunoDAO.findById(dto.getMatriculaAluno())
-                .orElseThrow(() -> new AlunoNaoEncontradoException(
-                        "Aluno não encontrado com matrícula: " + dto.getMatriculaAluno()));
+                .orElseThrow(() -> new AlunoNaoEncontradoException("Aluno não encontrado com matrícula: " + dto.getMatriculaAluno()));
 
         Turma turma = turmaDAO.findById(dto.getTurmaId())
-                .orElseThrow(() -> new TurmaNaoEncontradaException(
-                        "Turma não encontrada com id: " + dto.getTurmaId()));
+                .orElseThrow(() -> new TurmaNaoEncontradaException("Turma não encontrada com id: " + dto.getTurmaId()));
 
-        // Evita duplicidade: aluno já matriculado nesta turma
         if (matriculaDAO.existsByAlunoMatriculaAndTurmaId(aluno.getMatricula(), turma.getId())) {
-            throw new MatriculaDuplicadaException(
-                    "Aluno já está matriculado nesta turma.");
+            throw new MatriculaDuplicadaException("Aluno já está matriculado nesta turma.");
         }
 
-        // RN01: valida limite de vagas antes de salvar
         long vagasOcupadas = matriculaDAO.countByTurmaIdAndStatusMatricula(turma.getId(), STATUS_ATIVA);
         if (vagasOcupadas >= turma.getCapacidadeMaxima()) {
-            throw new TurmaLotadaException(
-                    "A turma " + turma.getCodigoTurma() + " está lotada (" + turma.getCapacidadeMaxima() + " vagas).");
+            throw new TurmaLotadaException("A turma " + turma.getCodigoTurma() + " está lotada (" + turma.getCapacidadeMaxima() + " vagas).");
         }
 
         Matricula matricula = new Matricula();
@@ -75,7 +105,7 @@ public class TurmaServiceImpl implements TurmaService {
         matricula.setStatusMatricula(STATUS_ATIVA);
 
         Matricula salva = matriculaDAO.save(matricula);
-        return toResponseDTO(salva);
+        return toMatriculaResponseDTO(salva);
     }
 
     @Override
@@ -85,11 +115,22 @@ public class TurmaServiceImpl implements TurmaService {
 
         return turma.getMatriculas()
                 .stream()
-                .map(this::toResponseDTO)
+                .map(this::toMatriculaResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    private MatriculaResponseDTO toResponseDTO(Matricula matricula) {
+    @Override
+    @Transactional
+    public MatriculaResponseDTO atualizarStatusMatricula(Long matriculaId, String status) {
+        Matricula matricula = matriculaDAO.findById(matriculaId)
+                .orElseThrow(() -> new MatriculaNaoEncontradaException("Matrícula não encontrada com id: " + matriculaId));
+
+        matricula.setStatusMatricula(status);
+        Matricula salva = matriculaDAO.save(matricula);
+        return toMatriculaResponseDTO(salva);
+    }
+
+    private MatriculaResponseDTO toMatriculaResponseDTO(Matricula matricula) {
         return new MatriculaResponseDTO(
                 matricula.getId(),
                 matricula.getStatusMatricula(),

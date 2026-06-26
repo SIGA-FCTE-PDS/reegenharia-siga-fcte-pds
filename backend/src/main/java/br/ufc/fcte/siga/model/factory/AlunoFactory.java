@@ -8,7 +8,6 @@ public class AlunoFactory {
 
     /**
      * Método centralizado para criar instâncias de Aluno.
-     * A equipa que desenvolver a camada Service chamará apenas este método.
      */
     public static Aluno criarAluno(String tipo, String matricula, String nome, String cpf, String curso, String instituicaoOrigem) {
 
@@ -22,7 +21,7 @@ public class AlunoFactory {
             alunoNormal.setNome(nome);
             alunoNormal.setCpf(cpf);
             alunoNormal.setCurso(curso);
-            alunoNormal.setStatus("ATIVO"); // RN07: Todo aluno nasce como ATIVO por defeito
+            alunoNormal.setStatus("ATIVO");
             return alunoNormal;
 
         } else if (tipo.equalsIgnoreCase("ESPECIAL")) {

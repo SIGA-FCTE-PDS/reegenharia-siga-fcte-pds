@@ -8,7 +8,7 @@ import java.time.LocalDate;
 /**
  * DTO de saída para Aluno.
  * Não inclui a lista de Matriculas para evitar loop infinito de serialização
- * (Aluno -> Matricula -> Aluno -> ...), conforme alertado pelo PO.
+ * (Aluno -> Matricula -> Aluno -> ...)
  */
 @Data
 @NoArgsConstructor

@@ -1,0 +1,47 @@
+### 1. Testar Criação de Curso (Para popular o select do Front-end)
+POST http://localhost:8080/api/cursos
+Content-Type: application/json
+
+{
+  "codigo": "03",
+  "nome": "Engenharia de Software"
+}
+
+### 2. Testar o Login do Professor (Mock Login)
+# Troque este e-mail por um e-mail de um professor que você JÁ tenha cadastrado no seu banco!
+GET http://localhost:8080/api/professores/email/yoda@ufc.br
+Accept: application/json
+
+### 3. Testar a Criação de Turma
+# ATENÇÃO: Os campos "professorId" e "disciplinaCodigo" DEVEM existir no seu banco!
+# Troque os valores abaixo pelos IDs reais que você tem nas tabelas de professor e disciplina.
+POST http://localhost:8080/api/turmas
+Content-Type: application/json
+
+{
+  "codigoTurma": "T01-2026",
+  "semestreLetivo": "2026.1",
+  "sala": "Sala 104",
+  "horario": "18:00 - 20:00",
+  "capacidadeMaxima": 60,
+  "modalidade": "Presencial",
+  "disciplinaCodigo": "MAT101",
+  "professorId": 1
+}
+### Criar uma Disciplina para o teste da Turma
+POST http://localhost:8080/api/disciplinas
+Content-Type: application/json
+
+{
+  "codigo": "MAT101",
+  "nome": "Matemática Aplicada",
+  "cargaHoraria": 60
+}
+### Criar um Professor para o teste da Turma
+POST http://localhost:8080/api/professores
+Content-Type: application/json
+
+{
+  "nome": "Mestre Yoda",
+  "email": "yoda@ufc.br"
+}

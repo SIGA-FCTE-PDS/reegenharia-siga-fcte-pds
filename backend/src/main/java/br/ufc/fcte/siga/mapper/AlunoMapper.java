@@ -10,8 +10,8 @@ public class AlunoMapper {
     }
 
     /**
-     * Converte a entidade Aluno (ou subclasse) para o DTO de resposta.
-     * Não toca na lista de matriculas, evitando o loop de serialização.
+     * Converte a entidade Aluno ou s subclasse para o DTO de resposta
+     * Não toca na lista de matriculas, evitando o loop de serialização
      */
     public static AlunoResponseDTO toResponseDTO(Aluno aluno) {
         if (aluno == null) {
