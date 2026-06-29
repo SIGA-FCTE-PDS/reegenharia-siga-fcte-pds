@@ -8,7 +8,6 @@ export const LoginPage = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    // Estados dos formulários
     const [emailProfessor, setEmailProfessor] = useState('');
     const [matriculaAluno, setMatriculaAluno] = useState('');
 
@@ -18,19 +17,12 @@ export const LoginPage = () => {
         navigate('/secretaria');
     };
 
-    // 2. Login do Professor
     const handleLoginProfessor = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const response = await api.get(`/professores/email/${emailProfessor}`);
             const professor = response.data;
-
-            const user: User = {
-                idOuMatricula: professor.id.toString(),
-                nome: professor.nome,
-                role: 'PROFESSOR'
-            };
-
+            const user: User = { idOuMatricula: professor.id.toString(), nome: professor.nome, role: 'PROFESSOR' };
             login(user);
             navigate('/professor');
         } catch (error) {
@@ -38,22 +30,13 @@ export const LoginPage = () => {
         }
     };
 
-    // 3. Login do Aluno
     const handleLoginAluno = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!matriculaAluno) return alert('Digite a matrícula');
-
         try {
-            // Chama o backend para verificar se o aluno realmente existe
             const response = await api.get(`/alunos/${matriculaAluno}`);
             const aluno = response.data;
-
-            const user: User = {
-                idOuMatricula: aluno.matricula,
-                nome: aluno.nome, // Pega o nome verdadeiro que veio do banco!
-                role: 'ALUNO'
-            };
-
+            const user: User = { idOuMatricula: aluno.matricula, nome: aluno.nome, role: 'ALUNO' };
             login(user);
             navigate('/aluno');
         } catch (error) {
@@ -61,48 +44,88 @@ export const LoginPage = () => {
         }
     };
 
+    const cardStyle = {
+        background: '#FFFFFF',
+        borderRadius: '8px',
+        padding: '2rem',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+        borderTop: '4px solid #004B87',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        justifyContent: 'space-between'
+    };
+
+    const inputStyle = {
+        padding: '0.8rem',
+        borderRadius: '4px',
+        border: '1px solid #ccc',
+        width: '100%',
+        marginBottom: '1rem',
+        boxSizing: 'border-box' as const,
+        fontSize: '1rem'
+    };
+
+    const btnStyle = {
+        padding: '0.8rem 1rem',
+        background: '#004B87',
+        color: '#FFF',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontSize: '1rem',
+        width: '100%',
+        transition: 'background 0.3s'
+    };
+
     return (
-        <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '600px', margin: '0 auto' }}>
-            <h1 style={{ textAlign: 'center' }}>SIGA - FCTE</h1>
-            <p style={{ textAlign: 'center', color: '#666' }}>Selecione seu perfil para entrar</p>
+        <div style={{ minHeight: '100vh', backgroundColor: '#F4F6F8', display: 'flex', flexDirection: 'column' }}>
+            {/* Header Institucional */}
+            <header style={{ backgroundColor: '#004B87', padding: '2rem', color: 'white', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <h1 style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '1px' }}>SIGA - FCTE</h1>
+                <p style={{ margin: '0.5rem 0 0 0', opacity: 0.9, fontSize: '1.1rem' }}>Sistema Integrado de Gestão Acadêmica</p>
+            </header>
 
-            {/* secretaria */}
-            <div style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem', borderRadius: '8px' }}>
-                <h3>Entrar como Secretaria</h3>
-                <button onClick={handleLoginSecretaria} style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}>
-                    Acessar Painel Admin
-                </button>
-            </div>
+            {/* Área Principal */}
+            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3rem 1rem' }}>
+                <h2 style={{ color: '#333', marginBottom: '2rem', fontWeight: 600 }}>Selecione seu portal de acesso</h2>
 
-            {/* Professor */}
-            <div style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem', borderRadius: '8px' }}>
-                <h3>Entrar como Professor</h3>
-                <form onSubmit={handleLoginProfessor}>
-                    <input
-                        type="email"
-                        placeholder="E-mail (ex: yoda@ufc.br)"
-                        value={emailProfessor}
-                        onChange={(e) => setEmailProfessor(e.target.value)}
-                        style={{ padding: '0.5rem', marginRight: '0.5rem', width: '250px' }}
-                    />
-                    <button type="submit" style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}>Entrar</button>
-                </form>
-            </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', width: '100%', maxWidth: '1000px' }}>
 
-            {/* Aluno */}
-            <div style={{ border: '1px solid #ccc', padding: '1rem', borderRadius: '8px' }}>
-                <h3>Entrar como Aluno</h3>
-                <form onSubmit={handleLoginAluno}>
-                    <input
-                        type="text"
-                        placeholder="Matrícula"
-                        value={matriculaAluno}
-                        onChange={(e) => setMatriculaAluno(e.target.value)}
-                        style={{ padding: '0.5rem', marginRight: '0.5rem', width: '250px' }}
-                    />
-                    <button type="submit" style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}>Entrar</button>
-                </form>
-            </div>
+                    {/* Card Secretaria */}
+                    <div style={cardStyle}>
+                        <div>
+                            <h3 style={{ color: '#004B87', marginTop: 0 }}>Portal da Secretaria</h3>
+                            <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '2rem' }}>Acesso exclusivo para administradores do sistema e gestão acadêmica.</p>
+                        </div>
+                        <button onClick={handleLoginSecretaria} style={{ ...btnStyle, background: '#4CAF50' }}>Acessar Painel Admin</button>
+                    </div>
+
+                    {/* Card Professor */}
+                    <div style={cardStyle}>
+                        <div>
+                            <h3 style={{ color: '#004B87', marginTop: 0 }}>Portal do Professor</h3>
+                            <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Lançamento de notas, frequências e criação de avaliações.</p>
+                        </div>
+                        <form onSubmit={handleLoginProfessor}>
+                            <input type="email" placeholder="E-mail (ex: prof@ufc.br)" value={emailProfessor} onChange={(e) => setEmailProfessor(e.target.value)} style={inputStyle} required />
+                            <button type="submit" style={btnStyle}>Entrar como Professor</button>
+                        </form>
+                    </div>
+
+                    {/* Card Aluno */}
+                    <div style={cardStyle}>
+                        <div>
+                            <h3 style={{ color: '#004B87', marginTop: 0 }}>Portal do Aluno</h3>
+                            <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Consulta de boletins, histórico acadêmico.</p>
+                        </div>
+                        <form onSubmit={handleLoginAluno}>
+                            <input type="text" placeholder="Número de Matrícula" value={matriculaAluno} onChange={(e) => setMatriculaAluno(e.target.value)} style={inputStyle} required />
+                            <button type="submit" style={btnStyle}>Entrar como Aluno</button>
+                        </form>
+                    </div>
+                </div>
+            </main>
         </div>
     );
 };

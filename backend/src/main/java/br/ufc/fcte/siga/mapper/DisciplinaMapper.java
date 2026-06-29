@@ -13,16 +13,27 @@ public class DisciplinaMapper {
         if (disciplina == null) {
             return null;
         }
-        return new DisciplinaResponseDTO(
-                disciplina.getCodigo(),
-                disciplina.getNome(),
-                disciplina.getCargaHoraria(),
-                disciplina.getTipo(),
-                disciplina.getPreRequisitos()
-        );
+
+        DisciplinaResponseDTO dto = new DisciplinaResponseDTO();
+        dto.setCodigo(disciplina.getCodigo());
+        dto.setNome(disciplina.getNome());
+        dto.setCargaHoraria(disciplina.getCargaHoraria());
+        dto.setTipo(disciplina.getTipo());
+        dto.setPreRequisitos(disciplina.getPreRequisitos());
+
+        if (disciplina.getCurso() != null) {
+            dto.setCodigoCurso(disciplina.getCurso().getCodigo());
+            dto.setNomeCurso(disciplina.getCurso().getNome());
+        }
+
+        return dto;
     }
 
     public static Disciplina toEntity(DisciplinaRequestDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
         Disciplina disciplina = new Disciplina();
         disciplina.setCodigo(dto.getCodigo());
         disciplina.setNome(dto.getNome());
@@ -33,9 +44,11 @@ public class DisciplinaMapper {
     }
 
     public static void updateEntityFromDTO(Disciplina disciplina, DisciplinaRequestDTO dto) {
-        disciplina.setNome(dto.getNome());
-        disciplina.setCargaHoraria(dto.getCargaHoraria());
-        disciplina.setTipo(dto.getTipo());
-        disciplina.setPreRequisitos(dto.getPreRequisitos());
+        if (dto != null) {
+            disciplina.setNome(dto.getNome());
+            disciplina.setCargaHoraria(dto.getCargaHoraria());
+            disciplina.setTipo(dto.getTipo());
+            disciplina.setPreRequisitos(dto.getPreRequisitos());
+        }
     }
 }

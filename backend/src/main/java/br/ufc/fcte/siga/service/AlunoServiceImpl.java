@@ -1,6 +1,7 @@
 package br.ufc.fcte.siga.service;
 
 import br.ufc.fcte.siga.dao.AlunoDAO;
+import br.ufc.fcte.siga.dao.CursoDAO;
 import br.ufc.fcte.siga.dto.AlunoRequestDTO;
 import br.ufc.fcte.siga.dto.AlunoResponseDTO;
 import br.ufc.fcte.siga.exception.AlunoNaoEncontradoException;
@@ -8,6 +9,7 @@ import br.ufc.fcte.siga.exception.CpfDuplicadoException;
 import br.ufc.fcte.siga.exception.MatriculaDuplicadaException;
 import br.ufc.fcte.siga.mapper.AlunoMapper;
 import br.ufc.fcte.siga.model.Aluno;
+import br.ufc.fcte.siga.model.Curso;
 import br.ufc.fcte.siga.model.factory.AlunoFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,10 +23,12 @@ import java.util.stream.Collectors;
 public class AlunoServiceImpl implements AlunoService {
 
     private final AlunoDAO alunoDAO;
+    private final CursoDAO cursoDAO; // Injetando o DAO de Cursos
 
     @Autowired
-    public AlunoServiceImpl(AlunoDAO alunoDAO) {
+    public AlunoServiceImpl(AlunoDAO alunoDAO, CursoDAO cursoDAO) {
         this.alunoDAO = alunoDAO;
+        this.cursoDAO = cursoDAO;
     }
 
     @Override
@@ -33,18 +37,23 @@ public class AlunoServiceImpl implements AlunoService {
             throw new CpfDuplicadoException("Já existe um aluno cadastrado com este CPF.");
         }
 
-        String matricula = gerarMatricula(dto);
+        // Busca o Curso real no banco de dados
+        Curso curso = cursoDAO.findById(dto.getCodigoCurso())
+                .orElseThrow(() -> new RuntimeException("Curso não encontrado com o código: " + dto.getCodigoCurso()));
+
+        String matricula = gerarMatricula(dto, curso);
 
         if (alunoDAO.existsById(matricula)) {
             throw new MatriculaDuplicadaException("Conflito ao gerar matrícula, tente novamente: " + matricula);
         }
 
+        // Repassamos a entidade 'curso' de forma íntegra para a Factory
         Aluno aluno = AlunoFactory.criarAluno(
                 dto.getTipoAluno(),
                 matricula,
                 dto.getNome(),
                 dto.getCpf(),
-                dto.getCurso(), // Envia o nome do curso para a Factory
+                curso,
                 dto.getInstituicaoOrigem()
         );
 
@@ -52,8 +61,8 @@ public class AlunoServiceImpl implements AlunoService {
         aluno.setDataNascimento(dto.getDataNascimento());
         aluno.setEndereco(dto.getEndereco());
         aluno.setTelefone(dto.getTelefone());
-        aluno.setCurso(dto.getCurso());
 
+        // A Factory já fez a amarração do curso, então basta salvar
         Aluno salvo = alunoDAO.save(aluno);
         return AlunoMapper.toResponseDTO(salvo);
     }
@@ -78,7 +87,11 @@ public class AlunoServiceImpl implements AlunoService {
         Aluno aluno = alunoDAO.findById(matricula)
                 .orElseThrow(() -> new AlunoNaoEncontradoException("Aluno não encontrado com matrícula: " + matricula));
 
+        Curso curso = cursoDAO.findById(dto.getCodigoCurso())
+                .orElseThrow(() -> new RuntimeException("Curso não encontrado com o código: " + dto.getCodigoCurso()));
+
         AlunoMapper.updateEntityFromDTO(aluno, dto);
+        aluno.setCurso(curso); // Atualiza a amarração do curso
 
         Aluno atualizado = alunoDAO.save(aluno);
         return AlunoMapper.toResponseDTO(atualizado);
@@ -92,7 +105,7 @@ public class AlunoServiceImpl implements AlunoService {
         alunoDAO.deleteById(matricula);
     }
 
-    private String gerarMatricula(AlunoRequestDTO dto) {
+    private String gerarMatricula(AlunoRequestDTO dto, Curso curso) {
         LocalDate hoje = LocalDate.now();
 
         int ano = dto.getAnoIngresso() != null ? dto.getAnoIngresso() : hoje.getYear();
@@ -101,11 +114,9 @@ public class AlunoServiceImpl implements AlunoService {
                 ? dto.getSemestreIngresso()
                 : String.valueOf(hoje.getMonthValue() <= Month.JUNE.getValue() ? 1 : 2);
 
-        String codigoCurso = dto.getCodigoCurso();
-        if (codigoCurso == null || codigoCurso.isBlank()) {
-            throw new IllegalArgumentException("O código do curso (codigoCurso) é obrigatório para gerar a matrícula.");
-        }
-        long quantidadeExistente = alunoDAO.countByCurso(dto.getCurso());
+        String codigoCurso = curso.getCodigo();
+
+        long quantidadeExistente = alunoDAO.countByCurso(curso);
         long proximoSequencial = quantidadeExistente + 1;
 
         return String.format("%d%s%s%03d", ano, semestre, codigoCurso, proximoSequencial);

@@ -10,6 +10,7 @@ import br.ufc.fcte.siga.model.Avaliacao;
 import br.ufc.fcte.siga.model.Turma;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class AvaliacaoServiceImpl implements AvaliacaoService {
     }
 
     @Override
+    @Transactional
     public AvaliacaoResponseDTO criar(AvaliacaoRequestDTO dto) {
         Turma turma = turmaDAO.findById(dto.getTurmaId())
                 .orElseThrow(() -> new TurmaNaoEncontradaException(
@@ -35,6 +37,7 @@ public class AvaliacaoServiceImpl implements AvaliacaoService {
         Avaliacao avaliacao = new Avaliacao();
         avaliacao.setDescricao(dto.getDescricao());
         avaliacao.setTurma(turma);
+        avaliacao.setPeso(dto.getPeso() > 0 ? dto.getPeso() : 1);
 
         Avaliacao salva = avaliacaoDAO.save(avaliacao);
         return AvaliacaoMapper.toResponseDTO(salva);

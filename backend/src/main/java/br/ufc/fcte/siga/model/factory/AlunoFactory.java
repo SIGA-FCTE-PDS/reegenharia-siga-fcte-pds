@@ -3,13 +3,14 @@ package br.ufc.fcte.siga.model.factory;
 import br.ufc.fcte.siga.model.Aluno;
 import br.ufc.fcte.siga.model.AlunoEspecial;
 import br.ufc.fcte.siga.model.AlunoNormal;
+import br.ufc.fcte.siga.model.Curso;
 
 public class AlunoFactory {
 
     /**
      * Método centralizado para criar instâncias de Aluno.
      */
-    public static Aluno criarAluno(String tipo, String matricula, String nome, String cpf, String curso, String instituicaoOrigem) {
+    public static Aluno criarAluno(String tipo, String matricula, String nome, String cpf, Curso curso, String instituicaoOrigem) {
 
         if (tipo == null || tipo.trim().isEmpty()) {
             throw new IllegalArgumentException("O tipo de aluno deve ser informado (NORMAL ou ESPECIAL).");

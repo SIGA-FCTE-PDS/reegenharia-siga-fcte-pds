@@ -6,13 +6,7 @@ import br.ufc.fcte.siga.model.AlunoEspecial;
 
 public class AlunoMapper {
     private AlunoMapper() {
-        // classe utilitária, não deve ser instanciada
     }
-
-    /**
-     * Converte a entidade Aluno ou s subclasse para o DTO de resposta
-     * Não toca na lista de matriculas, evitando o loop de serialização
-     */
     public static AlunoResponseDTO toResponseDTO(Aluno aluno) {
         if (aluno == null) {
             return null;
@@ -22,7 +16,10 @@ public class AlunoMapper {
         dto.setMatricula(aluno.getMatricula());
         dto.setNome(aluno.getNome());
         dto.setCpf(aluno.getCpf());
-        dto.setCurso(aluno.getCurso());
+        if (aluno.getCurso() != null) {
+            dto.setCurso(aluno.getCurso().getNome());
+        }
+
         dto.setEmail(aluno.getEmail());
         dto.setDataNascimento(aluno.getDataNascimento());
         dto.setEndereco(aluno.getEndereco());
@@ -40,14 +37,8 @@ public class AlunoMapper {
         return dto;
     }
 
-    /**
-     * Atualiza os campos de uma entidade JÁ EXISTENTE (não recria, mantém a matricula original).
-     * Não altera tipoAluno - trocar de NORMAL para ESPECIAL (ou vice-versa) não é suportado
-     * por update simples, pois são tabelas diferentes (JOINED inheritance).
-     */
     public static void updateEntityFromDTO(Aluno aluno, br.ufc.fcte.siga.dto.AlunoRequestDTO dto) {
         aluno.setNome(dto.getNome());
-        aluno.setCurso(dto.getCurso());
         aluno.setEmail(dto.getEmail());
         aluno.setDataNascimento(dto.getDataNascimento());
         aluno.setEndereco(dto.getEndereco());

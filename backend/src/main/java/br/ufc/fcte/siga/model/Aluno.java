@@ -13,32 +13,30 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
-// Define a coluna que dirá se o aluno é NORMAL ou ESPECIAL
 @DiscriminatorColumn(name = "tipo_aluno", discriminatorType = DiscriminatorType.STRING)
 public class Aluno {
 
     @Id
     private String matricula;
 
-    @Column(nullable = false) // Garante o "NN" (Not Null) do diagrama
+    @Column(nullable = false)
     private String nome;
 
-    @Column(unique = true, nullable = false) // Garante que o CPF não se repita
+    @Column(unique = true, nullable = false)
     private String cpf;
 
-    private String curso;
+    // 💡 AQUI ESTÁ A MÁGICA: Vínculo real Aluno -> Curso
+    @ManyToOne
+    @JoinColumn(name = "curso_codigo", nullable = false)
+    private Curso curso;
+
     private String email;
     private LocalDate dataNascimento;
     private String endereco;
     private String telefone;
 
-    // Status para controle de trancamento (RN07, RN08, RN11)
     private String status;
 
-    //Relacionamento 1 para N com Matrícula
-    // mappedBy = "aluno" indica que a chave estrangeira vai ficar na classe Matricula
     @OneToMany(mappedBy = "aluno", cascade = CascadeType.ALL)
     private List<Matricula> matriculas;
-
-
 }

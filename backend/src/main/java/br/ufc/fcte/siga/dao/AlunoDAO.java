@@ -1,6 +1,7 @@
 package br.ufc.fcte.siga.dao;
 
 import br.ufc.fcte.siga.model.Aluno;
+import br.ufc.fcte.siga.model.Curso;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +21,5 @@ public interface AlunoDAO extends JpaRepository<Aluno, String> {
     List<Aluno> findByStatus(String status);
 
     // Conta quantos alunos já existem em um curso específico - usado para gerar
-    // o número sequencial da matrícula (RN definida com o PO)
-    long countByCurso(String curso);
+    long countByCurso(Curso curso);
 }

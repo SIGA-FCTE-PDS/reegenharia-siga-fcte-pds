@@ -63,7 +63,8 @@ public class BoletimServiceImpl implements BoletimService {
                 nota.getValor(),
                 nota.getAluno().getMatricula(),
                 nota.getAvaliacao().getId(),
-                nota.getAvaliacao().getDescricao()
+                nota.getAvaliacao().getDescricao(),
+                nota.getAvaliacao().getPeso()
         );
     }
 }

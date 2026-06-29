@@ -16,7 +16,8 @@ public class AvaliacaoMapper {
                 avaliacao.getId(),
                 avaliacao.getDescricao(),
                 avaliacao.getTurma().getId(),
-                avaliacao.getTurma().getCodigoTurma()
+                avaliacao.getTurma().getCodigoTurma(),
+                avaliacao.getPeso()
         );
     }
 }

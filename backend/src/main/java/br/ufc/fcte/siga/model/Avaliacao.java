@@ -19,6 +19,10 @@ public class Avaliacao {
     @Column(nullable = false)
     private String descricao;
 
+    // 💡 O campo novo que guarda o peso da nota (ex: 1, 2, 3...)
+    @Column(nullable = false, columnDefinition = "int default 1")
+    private int peso = 1;
+
     // Relacionamento N:1 com Turma (Muitas avaliações para uma Turma)
     @ManyToOne
     @JoinColumn(name = "turma_id", nullable = false)

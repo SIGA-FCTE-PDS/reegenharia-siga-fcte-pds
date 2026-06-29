@@ -17,12 +17,20 @@ public class Disciplina {
     @Id
     private String codigo;
 
+    @Column(nullable = false)
     private String nome;
 
+    @Column(nullable = false)
     private int cargaHoraria;
 
-    // Campo obrigatório adicionado para atender ao RF02
+    // 💡 Campo para definir se é "OBRIGATORIA" ou "OPTATIVA"
+    @Column(nullable = false)
     private String tipo;
+
+    // 💡 Vínculo real Disciplina -> Curso
+    @ManyToOne
+    @JoinColumn(name = "curso_codigo", nullable = false)
+    private Curso curso;
 
     @ElementCollection
     @CollectionTable(name = "disciplina_prerequisitos_temp", joinColumns = @JoinColumn(name = "disciplina_codigo"))

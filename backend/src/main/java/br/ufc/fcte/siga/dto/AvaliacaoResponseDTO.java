@@ -12,4 +12,5 @@ public class AvaliacaoResponseDTO {
     private String descricao;
     private Long turmaId;
     private String codigoTurma;
+    private int peso;
 }

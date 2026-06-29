@@ -6,4 +6,5 @@ import lombok.Data;
 public class AvaliacaoRequestDTO {
     private String descricao;
     private Long turmaId;
+    private int peso;
 }

@@ -13,4 +13,5 @@ public class NotaResponseDTO {
     private String matriculaAluno;
     private Long avaliacaoId;
     private String descricaoAvaliacao;
+    private int pesoAvaliacao;
 }
